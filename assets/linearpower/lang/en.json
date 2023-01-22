@@ -1,0 +1,17 @@
+﻿{
+    "linearpower:block-sawmill-birch-*": "Sawmill (Birch)",
+    "linearpower:block-sawmill-oak-*": "Sawmill (Oak)",
+    "linearpower:block-sawmill-maple-*": "Sawmill (Maple)",
+    "linearpower:block-sawmill-pine-*": "Sawmill (Pine)",
+    "linearpower:block-sawmill-acacia-*": "Sawmill (Acacia)",
+    "linearpower:block-sawmill-kapok-*": "Sawmill (Kapok)",
+    "linearpower:block-sawmill-baldcypress-*": "Sawmill (Baldcypress)",
+    "linearpower:block-sawmill-larch-*": "Sawmill (Larch)",
+    "linearpower:block-sawmill-redwood-*": "Sawmill (Redwood)",
+    "linearpower:block-sawmill-ebony-*": "Sawmill (Ebony)",
+    "linearpower:block-sawmill-walnut-*": "Sawmill (Walnut)",
+    "linearpower:block-sawmill-purpleheart-*": "Sawmill (Purpleheart)",
+    "linearpower:block-slidercrank-*": "Slidercrank",
+    "linearpower:notValidForSawing": "The item can't be processed in the sawmill",
+    "linearpower:requiresSaw": "Please add a saw before trying to add items"
+}

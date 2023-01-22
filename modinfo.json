@@ -1,0 +1,12 @@
+{
+    "type": "code",
+    "modid": "linearpower",
+    "name": "Linear Power",
+    "authors": [ "Quaan" ],
+    "description": "Adds a slider crank to convert angular force to linear force paired with a mechanically powered sawmill",
+    "version": "0.0.1",
+    "dependencies": {
+        "game": "1.17.10",
+        "survival": "1.17.10"
+    }
+}

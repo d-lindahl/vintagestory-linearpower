@@ -1,0 +1,44 @@
+{
+	"editor": {
+		"backDropShape": "G:/Programming/VS/vsmodtemplate/mods/sawmill/assets/sawmill/shapes/block/wood/mechanics/slidercrank-support",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "Cube5",
+			"from": [ 1.0, 7.0, 12.0 ], 
+			"to": [ 3.0, 9.0, 15.25 ], 
+			"rotationOrigin": [ 1.0, 7.0, 15.0 ],
+			"faces": {
+				"north": { "texture": "#wood", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+				"east": { "texture": "#wood", "uv": [ 0.0, 0.0, 3.0, 2.0 ] },
+				"south": { "texture": "#wood", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+				"west": { "texture": "#wood", "uv": [ 0.0, 0.0, 3.0, 2.0 ] },
+				"up": { "texture": "#wood", "uv": [ 0.0, 0.0, 2.0, 3.0 ] },
+				"down": { "texture": "#wood", "uv": [ 0.0, 0.0, 2.0, 3.0 ] }
+			},
+			"children": [
+				{
+					"name": "Cube4",
+					"from": [ 0.0, 0.0, 3.25 ], 
+					"to": [ 8.0, 2.0, 3.75 ], 
+					"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+					"faces": {
+						"north": { "texture": "#wood", "uv": [ 0.0, 0.0, 8.0, 2.0 ] },
+						"east": { "texture": "#wood", "uv": [ 0.0, 0.0, 0.5, 2.0 ] },
+						"south": { "texture": "#wood", "uv": [ 0.0, 0.0, 8.0, 2.0 ] },
+						"west": { "texture": "#wood", "uv": [ 0.0, 0.0, 0.5, 2.0 ] },
+						"up": { "texture": "#wood", "uv": [ 0.0, 0.0, 8.0, 0.5 ] },
+						"down": { "texture": "#wood", "uv": [ 0.0, 0.0, 8.0, 0.5 ] }
+					}
+				}
+			]
+		}
+	]}

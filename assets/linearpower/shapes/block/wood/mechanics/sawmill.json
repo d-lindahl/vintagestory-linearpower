@@ -1,0 +1,129 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "SawHolderBaseN",
+			"from": [ 6.0, 0.0, 1.0 ], 
+			"to": [ 10.0, 2.0, 3.0 ], 
+			"rotationOrigin": [ 12.0, 10.0, 8.0 ],
+			"faces": {
+				"north": { "texture": "#north", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+				"east": { "texture": "#east", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+				"south": { "texture": "#south", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+				"west": { "texture": "#west", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+				"up": { "texture": "#up", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+				"down": { "texture": "#down", "uv": [ 0.0, 0.0, 4.0, 2.0 ] }
+			},
+			"children": [
+				{
+					"name": "SawHolderNW",
+					"from": [ 0.0, 2.0, 0.0 ], 
+					"to": [ 1.0, 15.0, 2.0 ], 
+					"rotationOrigin": [ 6.0, 10.0, 7.0 ],
+					"faces": {
+						"north": { "texture": "#north", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"east": { "texture": "#east", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"south": { "texture": "#south", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"west": { "texture": "#west", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"up": { "texture": "#up", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"down": { "texture": "#down", "uv": [ 0.0, 0.0, 1.0, 2.0 ] }
+					}
+				},
+				{
+					"name": "SawHolderNE",
+					"from": [ 3.0, 2.0, 0.0 ], 
+					"to": [ 4.0, 15.0, 2.0 ], 
+					"rotationOrigin": [ 9.0, 10.0, 7.0 ],
+					"faces": {
+						"north": { "texture": "#north", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"east": { "texture": "#east", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"south": { "texture": "#south", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"west": { "texture": "#west", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"up": { "texture": "#up", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"down": { "texture": "#down", "uv": [ 0.0, 0.0, 1.0, 2.0 ] }
+					}
+				},
+				{
+					"name": "SawHolderTopW",
+					"from": [ 0.0, 13.0, 2.0 ], 
+					"to": [ 1.0, 15.0, 12.0 ], 
+					"rotationOrigin": [ 6.0, 9.0, 7.0 ],
+					"faces": {
+						"north": { "texture": "#north", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"east": { "texture": "#east", "uv": [ 0.0, 0.0, 10.0, 2.0 ] },
+						"south": { "texture": "#south", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"west": { "texture": "#west", "uv": [ 0.0, 0.0, 10.0, 2.0 ] },
+						"up": { "texture": "#up", "uv": [ 0.0, 0.0, 1.0, 10.0 ] },
+						"down": { "texture": "#down", "uv": [ 0.0, 0.0, 1.0, 10.0 ] }
+					}
+				},
+				{
+					"name": "SawHolderTopE",
+					"from": [ 3.0, 13.0, 2.0 ], 
+					"to": [ 4.0, 15.0, 12.0 ], 
+					"rotationOrigin": [ 9.0, 9.0, 7.0 ],
+					"faces": {
+						"north": { "texture": "#north", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"east": { "texture": "#east", "uv": [ 0.0, 0.0, 10.0, 2.0 ] },
+						"south": { "texture": "#south", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"west": { "texture": "#west", "uv": [ 0.0, 0.0, 10.0, 2.0 ] },
+						"up": { "texture": "#up", "uv": [ 0.0, 0.0, 1.0, 10.0 ] },
+						"down": { "texture": "#down", "uv": [ 0.0, 0.0, 1.0, 10.0 ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "SawHolderBaseS",
+			"from": [ 6.0, 0.0, 13.0 ], 
+			"to": [ 10.0, 2.0, 15.0 ], 
+			"rotationOrigin": [ 12.0, 10.0, 11.0 ],
+			"faces": {
+				"north": { "texture": "#north", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+				"east": { "texture": "#east", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+				"south": { "texture": "#south", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+				"west": { "texture": "#west", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+				"up": { "texture": "#up", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+				"down": { "texture": "#down", "uv": [ 0.0, 0.0, 4.0, 2.0 ] }
+			},
+			"children": [
+				{
+					"name": "SawHolderSW",
+					"from": [ 0.0, 2.0, 0.0 ], 
+					"to": [ 1.0, 15.0, 2.0 ], 
+					"rotationOrigin": [ 6.0, 10.0, 7.0 ],
+					"faces": {
+						"north": { "texture": "#north", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"east": { "texture": "#east", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"south": { "texture": "#south", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"west": { "texture": "#west", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"up": { "texture": "#up", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"down": { "texture": "#down", "uv": [ 0.0, 0.0, 1.0, 2.0 ] }
+					}
+				},
+				{
+					"name": "SawHolderS",
+					"from": [ 3.0, 2.0, 0.0 ], 
+					"to": [ 4.0, 15.0, 2.0 ], 
+					"rotationOrigin": [ 9.0, 10.0, 7.0 ],
+					"faces": {
+						"north": { "texture": "#north", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"east": { "texture": "#east", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"south": { "texture": "#south", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"west": { "texture": "#west", "uv": [ 0.0, 0.0, 2.0, 13.0 ] },
+						"up": { "texture": "#up", "uv": [ 0.0, 0.0, 1.0, 2.0 ] },
+						"down": { "texture": "#down", "uv": [ 0.0, 0.0, 1.0, 2.0 ] }
+					}
+				}
+			]
+		}
+	]}
