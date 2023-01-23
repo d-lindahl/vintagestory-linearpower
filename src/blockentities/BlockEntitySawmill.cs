@@ -232,7 +232,6 @@ namespace sawmill
         {
             float itemResistance;
             Block invBlock;
-            CollectibleObject invCollectible;
             if ((invBlock = inv[inputInventoryIndex].Itemstack?.Block) != null)
             {
                 itemResistance = invBlock.Resistance;

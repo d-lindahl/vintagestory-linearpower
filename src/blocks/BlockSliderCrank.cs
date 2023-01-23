@@ -73,7 +73,7 @@ namespace sawmill
 
         public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
-            return face == orientation || HasLinearMechPowerConnectorAt(world, pos, face);
+            return face == orientation;
         }
 
         public override void WasPlaced(IWorldAccessor world, BlockPos ownPos, BlockFacing connectedOnFacing)

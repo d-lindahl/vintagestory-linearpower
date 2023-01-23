@@ -15,15 +15,15 @@ namespace sawmill
 
         public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
-            return HasLinearMechPowerConnectorAt(world, pos, face);
+            return false;
         }
 
         public abstract bool HasLinearMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face);
 
         public override bool tryConnect(IWorldAccessor world, IPlayer byPlayer, BlockPos pos, BlockFacing face)
         {
-            ILinearMechanicalPowerBlock linearMechanicalBlock = world.BlockAccessor.GetBlock(pos.AddCopy(face)) as ILinearMechanicalPowerBlock;
-            if (linearMechanicalBlock != null && linearMechanicalBlock.HasLinearMechPowerConnectorAt(world, pos, face.Opposite))
+            if (world.BlockAccessor.GetBlock(pos.AddCopy(face)) is ILinearMechanicalPowerBlock linearMechanicalBlock &&
+                linearMechanicalBlock.HasLinearMechPowerConnectorAt(world, pos, face.Opposite))
             {
                 linearMechanicalBlock.DidConnectAt(world, pos.AddCopy(face), face.Opposite);
                 WasPlaced(world, pos, face);

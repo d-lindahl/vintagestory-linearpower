@@ -30,6 +30,11 @@ namespace sawmill
             return (world.BlockAccessor.GetBlockEntity(pos) as BlockEntitySawmill).mirroredLinearMotion;
         }
 
+        public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
+        {
+            return false;
+        }
+
         public override bool HasLinearMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
             return orientation == face || orientation == face.Opposite;

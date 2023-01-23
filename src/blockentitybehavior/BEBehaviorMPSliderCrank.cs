@@ -102,6 +102,5 @@ namespace sawmill
 
             return base.OnTesselation(mesher, tesselator);
         }
-
     }
 }
