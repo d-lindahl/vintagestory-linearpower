@@ -50,12 +50,13 @@ namespace sawmill
         protected override void UpdateLightAndTransformMatrix(int index, Vec3f distToCamera, float rotRad, IMechanicalPowerRenderable dev)
         {
             BEBehaviorMPSawmill sawmillDev = dev as BEBehaviorMPSawmill;
-            BlockFacing powerdFrom = sawmillDev.GetPropagationDirectionInput();
-            bool flip = sawmillDev.blockEntitySawmill.mirroredLinearMotion;
+            
+            BlockFacing powerdFrom = sawmillDev.GetPropagationDirectionInput(); // TODO should decide the offset to keep the saw close to the power direction
+            bool flip = sawmillDev.MirroredLinearMotion;
             int mul = 1;
             if (powerdFrom == sawmillDev.facing)
             {
-                mul = -1;
+                mul *= -1;
             }
             //currentLinearOffsetCache.TryGetValue(sawmillDev.NetworkId, out Dictionary <float, Tuple<float, float>> networkCache);
             //if (networkCache == null)
@@ -70,7 +71,7 @@ namespace sawmill
             //    networkCache[sawmillDev.GearedRatio] = linearOffsetForGearedRatio;
             //}
             //float currentLinearOffset = flip ? linearOffsetForGearedRatio.Item1 : linearOffsetForGearedRatio.Item2;
-            float currentLinearOffset = sawmillDev.LinearOffset(!flip);
+            float currentLinearOffset = sawmillDev.LinearOffset(flip);
 
             if (sawmillDev.blockEntitySawmill.HasSaw)
             {

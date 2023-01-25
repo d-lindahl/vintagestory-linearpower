@@ -23,7 +23,6 @@ namespace sawmill
         public float processingResistance;
         public static readonly int inputInventoryIndex = 0;
         public static readonly int sawInventoryIndex = 1;
-        public bool mirroredLinearMotion = false;
         
         private List<GridRecipe> sawGridRecipes;
         private HashSet<GridRecipeIngredient> sawRecipeIngredients;
@@ -33,6 +32,8 @@ namespace sawmill
         private readonly string sawRecipeCacheKey = "linearpower:sawRecipes";
         private readonly string sawRecipeIngredientsCacheKey = "linearpower:sawRecipeIngredients";
         private readonly string sawValidIngredientCodesKey = "linearpower:sawValidIngredientCodes";
+
+        private float accumulatedDurabilityCost = 0;
 
         public BlockFacing Facing { get; protected set; } = BlockFacing.NORTH;
 
@@ -137,7 +138,7 @@ namespace sawmill
                 Api.World.SpawnItemEntity(inv[inputInventoryIndex].TakeOut(1), Pos.ToVec3d());
                 return;
             }
-
+            
             applicableRecipe.Output.Resolve(Api.World, "sawmill");
             ItemStack outputStack = applicableRecipe.Output.ResolvedItemstack.Clone();
             if (applicableRecipe.CopyAttributesFrom != null)
@@ -151,9 +152,41 @@ namespace sawmill
                 }
             }
             inv[inputInventoryIndex].TakeOut(1);
+
+            if (LinearPowerConfig.Current.sawDegradeRate > 0)
+            {
+                float durabilityCost = applicableRecipe.resolvedIngredients.First(ingredient => ingredient.Code.Path.StartsWith("saw-")).ToolDurabilityCost * LinearPowerConfig.Current.sawDegradeRate;
+                if (durabilityCost > 0)
+                {
+                    accumulatedDurabilityCost += durabilityCost;
+                }
+                if (accumulatedDurabilityCost > 1)
+                {
+                    int damage = (int)Math.Floor(accumulatedDurabilityCost);
+                    accumulatedDurabilityCost -= damage;
+                    DamageSaw(damage);
+                }
+            }
+            
             Api.World.SpawnItemEntity(outputStack, Pos.ToVec3d() + new Vec3d(0.5, 0.05, 0.5), new Vec3d(0, 0.05, 0));
             processingResistance = 0;
             MarkDirty(redrawOnClient: true);
+        }
+
+        private void DamageSaw(int amount)
+        {
+            ItemStack itemstack = inv[sawInventoryIndex].Itemstack;
+            int remainingDurability = itemstack.Collectible.GetRemainingDurability(itemstack);
+            remainingDurability -= amount;
+            itemstack.Attributes.SetInt("durability", remainingDurability);
+            if (remainingDurability <= 0)
+            {
+                inv[sawInventoryIndex].Itemstack = null;
+                Api.World.PlaySoundAt(new AssetLocation("sounds/effect/toolbreak"), Pos.X, Pos.Y, Pos.Z, null, 1f, 16f);
+                Api.World.SpawnCubeParticles(Pos.ToVec3d() + new Vec3d(0.5, 0.5, 0.5), itemstack, 0.25f, 30, 1f);
+            }
+
+            inv[sawInventoryIndex].MarkDirty();
         }
 
         public ItemStack[] GetDrops(ItemStack sawmillStack)
@@ -380,7 +413,7 @@ namespace sawmill
             tree.SetFloat("progress", progress);
             tree.SetFloat("processingResistance", processingResistance);
             tree.SetItemstack("sawStack", inv[sawInventoryIndex].Itemstack);
-            tree.SetBool("mirroredLinearMotion", mirroredLinearMotion);
+            tree.SetFloat("accumulatedDurabilityCost", accumulatedDurabilityCost);
         }
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
         {
@@ -393,7 +426,7 @@ namespace sawmill
                 sawStack.ResolveBlockOrItem(worldForResolving);
                 sawCollectible = sawStack.Collectible;
             }
-            mirroredLinearMotion = tree.GetBool("mirroredLinearMotion");
+            accumulatedDurabilityCost = tree.GetFloat("accumulatedDurabilityCost");
         }
     }
 }

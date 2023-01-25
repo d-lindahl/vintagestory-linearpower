@@ -6,19 +6,27 @@ namespace sawmill
 {
     public abstract class BlockLinearMPBase : BlockMPBase, ILinearMechanicalPowerBlock
     {
-        public bool mirrored;
-
-        public virtual bool MirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing facing)
-        {
-            return false;
-        }
-
         public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
             return false;
         }
 
         public abstract bool HasLinearMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face);
+
+        public override void WasPlaced(IWorldAccessor world, BlockPos ownPos, BlockFacing connectedOnFacing)
+        {
+            if (connectedOnFacing != null)
+            {
+                if (HasMechPowerConnectorAt(world, ownPos, connectedOnFacing))
+                {
+                    (world.BlockAccessor.GetBlockEntity(ownPos)?.GetBehavior<BEBehaviorMPBase>())?.tryConnect(connectedOnFacing);
+                }
+                else if (HasLinearMechPowerConnectorAt(world, ownPos, connectedOnFacing))
+                {
+                    (world.BlockAccessor.GetBlockEntity(ownPos)?.GetBehavior<BEBehaviorLinearMPBase>())?.linearTryConnect(connectedOnFacing);
+                }
+            }
+        }
 
         public override bool tryConnect(IWorldAccessor world, IPlayer byPlayer, BlockPos pos, BlockFacing face)
         {
@@ -27,7 +35,6 @@ namespace sawmill
             {
                 linearMechanicalBlock.DidConnectAt(world, pos.AddCopy(face), face.Opposite);
                 WasPlaced(world, pos, face);
-                mirrored = linearMechanicalBlock.MirroredLinearMotion(world, pos, face.Opposite);
                 return true;
             }
 

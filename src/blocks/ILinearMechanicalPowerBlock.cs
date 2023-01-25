@@ -7,7 +7,5 @@ namespace sawmill
     public interface ILinearMechanicalPowerBlock : IMechanicalPowerBlock
     {
         bool HasLinearMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face);
-
-        bool MirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing facing);
     }
 }

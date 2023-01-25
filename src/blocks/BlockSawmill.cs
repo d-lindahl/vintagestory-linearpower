@@ -25,11 +25,6 @@ namespace sawmill
             return world.BlockAccessor.GetBlockEntity(blockSel.Position) is BlockEntitySawmill blockEntity ? blockEntity.OnInteract(byPlayer) : base.OnBlockInteractStart(world, byPlayer, blockSel);
         }
 
-        public override bool MirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing facing)
-        {
-            return (world.BlockAccessor.GetBlockEntity(pos) as BlockEntitySawmill).mirroredLinearMotion;
-        }
-
         public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
             return false;
@@ -57,10 +52,9 @@ namespace sawmill
                     AssetLocation blockCode = new AssetLocation(Code.Clone().WithoutPathAppendix(Code.EndVariant()) + blockFacing.Code);
                     if (world.GetBlock(blockCode).DoPlaceBlock(world, byPlayer, blockSel, itemstack))
                     {
+                        orientation = blockFacing;
                         block.DidConnectAt(world, pos, blockFacing.Opposite);
                         WasPlaced(world, blockSel.Position, blockFacing);
-                        (world.BlockAccessor.GetBlockEntity(blockSel.Position) as BlockEntitySawmill).mirroredLinearMotion =
-                            block.MirroredLinearMotion(world, pos, blockFacing.Opposite);
                         return true;
                     }
                 }
@@ -70,17 +64,14 @@ namespace sawmill
 
         public override void DidConnectAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
-            if (world.BlockAccessor.GetBlock(pos.AddCopy(face)) is ILinearMechanicalPowerBlock block)
+            BEBehaviorLinearMPBase beh;
+            if ((beh = world.BlockAccessor.GetBlockEntity(pos.AddCopy(face))?.GetBehavior<BEBehaviorLinearMPBase>()) != null)
             {
-                (world.BlockAccessor.GetBlockEntity(pos) as BlockEntitySawmill).mirroredLinearMotion =
-                            block.MirroredLinearMotion(world, pos, face.Opposite);
+
             }
             else if (world.BlockAccessor.GetBlockEntity(pos.AddCopy(face)) is BlockEntity nonLinear)
             {
-                BEBehaviorMPBase behavior = nonLinear.GetBehavior<BEBehaviorMPBase>();
-                if (behavior != null)
-                {
-                }
+
             }
         }
 

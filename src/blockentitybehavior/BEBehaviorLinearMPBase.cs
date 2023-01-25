@@ -14,6 +14,36 @@ namespace sawmill
         protected readonly float rodLength = 5f / 16;
         protected int direction = 1;
         
+        private bool _mirroredLinearMotion;
+        public bool MirroredLinearMotion
+        {
+            get { return _mirroredLinearMotion; }
+            set { _mirroredLinearMotion = value; }
+        }
+
+        public virtual bool IsMirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing facing)
+        {
+            if (this is BEBehaviorMPSliderCrank)
+            {
+                return facing == (Block as BlockSliderCrank).orientation.GetCCW();
+            }
+            else
+            {
+                BlockEntity be = world.BlockAccessor.GetBlockEntity(pos.AddCopy(GetPropagationDirectionInput().Opposite));
+                if (be == null)
+                    return false;
+                BEBehaviorLinearMPBase beb = be.GetBehavior<BEBehaviorLinearMPBase>();
+                if (beb == null)
+                    return false;
+                return beb.IsMirroredLinearMotion(world, pos.AddCopy(GetPropagationDirection().Opposite), GetPropagationDirection());
+            }
+        }
+
+        public virtual void UpdateMirroredLinearMotion()
+        {
+            MirroredLinearMotion = IsMirroredLinearMotion(Api.World, Position, GetPropagationDirection().Opposite);
+        }
+
         protected BEBehaviorLinearMPBase(BlockEntity blockentity) : base(blockentity)
         {
         }
@@ -79,14 +109,16 @@ namespace sawmill
                 return false;
             }
 
-            if (beMechBase != null && mechBlock is ILinearMechanicalPowerBlock linearBlock && linearBlock.HasLinearMechPowerConnectorAt(api.World, exitPos, propagatePath.OutFacing.Opposite))
+            if (beMechBase != null && mechBlock is BlockLinearMPBase linearBlock && linearBlock.HasLinearMechPowerConnectorAt(api.World, exitPos, propagatePath.OutFacing.Opposite))
             {
+                BEBehaviorLinearMPBase beLinear = beMechBase as BEBehaviorLinearMPBase;
                 beMechBase.Api = api;
                 if (!beMechBase.JoinAndSpreadNetworkToNeighbours(api, network, propagatePath, out missingChunkPos))
                 {
                     return false;
                 }
             }
+            UpdateMirroredLinearMotion();
             return true;
         }
         private bool OutsideMap(IBlockAccessor blockAccessor, BlockPos exitPos)
@@ -97,5 +129,67 @@ namespace sawmill
             return false;
         }
 
+        public override void WasPlaced(BlockFacing connectedOnFacing)
+        {
+            
+            if ((Api.Side != EnumAppSide.Client && OutFacingForNetworkDiscovery != null) || connectedOnFacing == null)
+            {
+                return;
+            }
+            linearTryConnect(connectedOnFacing);
+        }
+        public virtual bool linearTryConnect(BlockFacing toFacing)
+        {
+            if (Api == null)
+            {
+                return false;
+            }
+
+            BlockPos blockPos = Position.AddCopy(toFacing);
+            IMechanicalPowerBlock mechanicalPowerBlock = Api.World.BlockAccessor.GetBlock(blockPos) as IMechanicalPowerBlock;
+
+            if (mechanicalPowerBlock != null && (Block as IMechanicalPowerBlock).HasMechPowerConnectorAt(Api.World, blockPos.AddCopy(toFacing), toFacing) && mechanicalPowerBlock.HasMechPowerConnectorAt(Api.World, blockPos, toFacing.Opposite))
+            {
+                return base.tryConnect(toFacing);
+            }
+
+            if (!(mechanicalPowerBlock is ILinearMechanicalPowerBlock linearBlock) || !linearBlock.HasLinearMechPowerConnectorAt(Api.World, blockPos, toFacing.Opposite))
+            {
+                return false;
+            }
+
+            MechanicalNetwork mechanicalNetwork = mechanicalPowerBlock.GetNetwork(Api.World, blockPos);
+            if (mechanicalNetwork != null)
+            {
+                IMechanicalPowerDevice behavior = Api.World.BlockAccessor.GetBlockEntity(blockPos).GetBehavior<BEBehaviorMPBase>();
+                mechanicalPowerBlock.DidConnectAt(Api.World, blockPos, toFacing.Opposite);
+                MechPowerPath mechPowerPath = new MechPowerPath(toFacing, behavior.GetGearedRatio(toFacing), blockPos, !behavior.IsPropagationDirection(Position, toFacing));
+                SetPropagationDirection(mechPowerPath);
+                MechPowerPath[] mechPowerExits = GetMechPowerExits(mechPowerPath);
+                JoinNetwork(mechanicalNetwork);
+                for (int i = 0; i < mechPowerExits.Length; i++)
+                {
+                    BlockPos exitPos = Position.AddCopy(mechPowerExits[i].OutFacing);
+                    if (!spreadTo(Api, mechanicalNetwork, exitPos, mechPowerExits[i], out var _))
+                    {
+                        LeaveNetwork();
+                        return true;
+                    }
+                }
+                UpdateMirroredLinearMotion();
+                return true;
+            }
+
+            if (network != null)
+            {
+                BEBehaviorLinearMPBase bEBehaviorLinearMPBase = Api.World.BlockAccessor.GetBlockEntity(blockPos)?.GetBehavior<BEBehaviorLinearMPBase>();
+                if (bEBehaviorLinearMPBase != null)
+                {
+                    return bEBehaviorLinearMPBase.linearTryConnect(toFacing.Opposite);
+                }
+            }
+
+            return false;
+        }
     }
 }

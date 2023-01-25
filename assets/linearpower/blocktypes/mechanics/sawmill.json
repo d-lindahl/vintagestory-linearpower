@@ -19,6 +19,7 @@
     "variantgroups": [
         {
             "code": "wood",
+            "states": [ "aged" ],
             "loadFromProperties": "block/wood"
         },
         {

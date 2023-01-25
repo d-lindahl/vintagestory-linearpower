@@ -15,7 +15,11 @@ namespace sawmill
 
         public BEBehaviorMPSliderCrank(BlockEntity blockentity) : base(blockentity)
         {
-
+            Facing = BlockFacing.FromCode(this.Block.Variant["side"]);
+            if (Facing == null)
+            {
+                Facing = BlockFacing.NORTH;
+            }
         }
 
         public override void Initialize(ICoreAPI api, JsonObject properties)
@@ -46,6 +50,12 @@ namespace sawmill
             if (api.Side == EnumAppSide.Client)
                 capi = api as ICoreClientAPI;
         }
+
+        public override bool IsMirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing outgoingFace)
+        {
+            return outgoingFace == Facing.GetCCW();
+        }
+
         protected override MechPowerPath[] GetMechPowerExits(MechPowerPath entryDir)
         {
             return new MechPowerPath[3]

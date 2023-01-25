@@ -6,7 +6,7 @@ namespace sawmill
 {
     public class BlockSliderCrank : BlockLinearMPBase
     {
-        private BlockFacing orientation;
+        public BlockFacing orientation;
 
         public override void OnLoaded(ICoreAPI api)
         {
@@ -34,6 +34,7 @@ namespace sawmill
                     AssetLocation blockCode = new AssetLocation("linearpower:" + FirstCodePart() + "-" + blockFacing);
                     if (world.GetBlock(blockCode).DoPlaceBlock(world, byPlayer, blockSel, itemstack))
                     {
+                        orientation = blockFacing;
                         block.DidConnectAt(world, pos, blockFacing.Opposite);
                         WasPlaced(world, blockSel.Position, blockFacing);
                         return true;
@@ -64,11 +65,6 @@ namespace sawmill
                 }
             }
             base.OnNeighbourBlockChange(world, pos, neibpos);
-        }
-
-        public override bool MirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing outgoingFace)
-        {
-            return outgoingFace == orientation.GetCW();
         }
 
         public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
