@@ -224,7 +224,7 @@ namespace sawmill
                         TryPut(byPlayer, activeHotbarSlot, itemSlot);
                     else
                         if (Api is ICoreClientAPI capi)
-                            capi.TriggerIngameError(this, "notValidForSawing", Lang.Get("notValidForSawing"));
+                            capi.TriggerIngameError(this, "notValidForSawing", Lang.Get("linearpower:notValidForSawing"));
                 }
                 else if (Api is ICoreClientAPI api)
                 {
@@ -271,6 +271,10 @@ namespace sawmill
                 if (sawCollectible.MiningSpeed.ContainsKey(invBlock.BlockMaterial))
                 {
                     itemResistance /= sawCollectible.MiningSpeed[invBlock.BlockMaterial];
+                }
+                else
+                {
+                    itemResistance /= sawToolTier;
                 }
             }
             else if (inv[inputInventoryIndex].Itemstack?.Collectible != null)
@@ -369,7 +373,9 @@ namespace sawmill
             if (Api is ICoreClientAPI api)
                 api.World.Player.TriggerFpAnimation(EnumHandInteract.HeldItemInteract);
             UpdateItemResistance();
+            progress = 0;
             MarkDirty(true);
+            
         }
 
 

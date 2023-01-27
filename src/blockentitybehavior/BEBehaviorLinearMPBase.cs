@@ -14,15 +14,16 @@ namespace sawmill
         protected readonly float rodLength = 5f / 16;
         protected int direction = 1;
         
-        private bool _mirroredLinearMotion;
+        private bool? _mirroredLinearMotion;
         public bool MirroredLinearMotion
         {
-            get { return _mirroredLinearMotion; }
+            get { return (bool)(_mirroredLinearMotion == null ? UpdateMirroredLinearMotion() : _mirroredLinearMotion); }
             set { _mirroredLinearMotion = value; }
         }
 
         public virtual bool IsMirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing facing)
         {
+            Api.Logger.Notification("IsMirroredLinearMotion:" + pos + ":" + facing);
             if (this is BEBehaviorMPSliderCrank)
             {
                 return facing == (Block as BlockSliderCrank).orientation.GetCCW();
@@ -35,13 +36,16 @@ namespace sawmill
                 BEBehaviorLinearMPBase beb = be.GetBehavior<BEBehaviorLinearMPBase>();
                 if (beb == null)
                     return false;
-                return beb.IsMirroredLinearMotion(world, pos.AddCopy(GetPropagationDirection().Opposite), GetPropagationDirection());
+                _mirroredLinearMotion = beb.IsMirroredLinearMotion(world, pos.AddCopy(GetPropagationDirection().Opposite), GetPropagationDirection());
+                return (bool)_mirroredLinearMotion;
             }
         }
 
-        public virtual void UpdateMirroredLinearMotion()
+        public virtual bool? UpdateMirroredLinearMotion()
         {
+            Api.Logger.Notification("UpdateMirroredLinearMotion:" + Position+ ":" + GetPropagationDirection().Opposite);
             MirroredLinearMotion = IsMirroredLinearMotion(Api.World, Position, GetPropagationDirection().Opposite);
+            return MirroredLinearMotion;
         }
 
         protected BEBehaviorLinearMPBase(BlockEntity blockentity) : base(blockentity)
@@ -93,6 +97,7 @@ namespace sawmill
 
         protected override bool spreadTo(ICoreAPI api, MechanicalNetwork network, BlockPos exitPos, MechPowerPath propagatePath, out Vec3i missingChunkPos)
         {
+            Api.Logger.Notification("spreadTo:" + exitPos + ":" + propagatePath.OutFacing);
             BEBehaviorMPBase beMechBase = api.World.BlockAccessor.GetBlockEntity(exitPos)?.GetBehavior<BEBehaviorMPBase>();
             IMechanicalPowerBlock mechBlock = beMechBase?.Block as IMechanicalPowerBlock;
             
@@ -118,7 +123,7 @@ namespace sawmill
                     return false;
                 }
             }
-            UpdateMirroredLinearMotion();
+            //UpdateMirroredLinearMotion();
             return true;
         }
         private bool OutsideMap(IBlockAccessor blockAccessor, BlockPos exitPos)
@@ -131,7 +136,7 @@ namespace sawmill
 
         public override void WasPlaced(BlockFacing connectedOnFacing)
         {
-            
+            Api.Logger.Notification("WasPlaced:" + Position + ":" + connectedOnFacing);
             if ((Api.Side != EnumAppSide.Client && OutFacingForNetworkDiscovery != null) || connectedOnFacing == null)
             {
                 return;
@@ -140,6 +145,7 @@ namespace sawmill
         }
         public virtual bool linearTryConnect(BlockFacing toFacing)
         {
+            Api.Logger.Notification("linearTryConnect:" + Position + ":" + toFacing);
             if (Api == null)
             {
                 return false;
@@ -176,7 +182,7 @@ namespace sawmill
                         return true;
                     }
                 }
-                UpdateMirroredLinearMotion();
+                //UpdateMirroredLinearMotion();
                 return true;
             }
 
