@@ -14,38 +14,23 @@ namespace sawmill
         protected readonly float rodLength = 5f / 16;
         protected int direction = 1;
         
-        private bool? _mirroredLinearMotion;
+        private bool _mirroredLinearMotion;
         public bool MirroredLinearMotion
         {
-            get { return (bool)(_mirroredLinearMotion == null ? UpdateMirroredLinearMotion() : _mirroredLinearMotion); }
-            set { _mirroredLinearMotion = value; }
+            get { return _mirroredLinearMotion; }
+            set {
+                _mirroredLinearMotion = value;
+                if (Api.Side == EnumAppSide.Server)
+                {
+                    Blockentity.MarkDirty();
+                }
+            }
         }
 
         public virtual bool IsMirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing facing)
         {
-            Api.Logger.Notification("IsMirroredLinearMotion:" + pos + ":" + facing);
-            if (this is BEBehaviorMPSliderCrank)
-            {
-                return facing == (Block as BlockSliderCrank).orientation.GetCCW();
-            }
-            else
-            {
-                BlockEntity be = world.BlockAccessor.GetBlockEntity(pos.AddCopy(GetPropagationDirectionInput().Opposite));
-                if (be == null)
-                    return false;
-                BEBehaviorLinearMPBase beb = be.GetBehavior<BEBehaviorLinearMPBase>();
-                if (beb == null)
-                    return false;
-                _mirroredLinearMotion = beb.IsMirroredLinearMotion(world, pos.AddCopy(GetPropagationDirection().Opposite), GetPropagationDirection());
-                return (bool)_mirroredLinearMotion;
-            }
-        }
-
-        public virtual bool? UpdateMirroredLinearMotion()
-        {
-            Api.Logger.Notification("UpdateMirroredLinearMotion:" + Position+ ":" + GetPropagationDirection().Opposite);
-            MirroredLinearMotion = IsMirroredLinearMotion(Api.World, Position, GetPropagationDirection().Opposite);
-            return MirroredLinearMotion;
+            return _mirroredLinearMotion;
+            
         }
 
         protected BEBehaviorLinearMPBase(BlockEntity blockentity) : base(blockentity)
@@ -97,7 +82,6 @@ namespace sawmill
 
         protected override bool spreadTo(ICoreAPI api, MechanicalNetwork network, BlockPos exitPos, MechPowerPath propagatePath, out Vec3i missingChunkPos)
         {
-            Api.Logger.Notification("spreadTo:" + exitPos + ":" + propagatePath.OutFacing);
             BEBehaviorMPBase beMechBase = api.World.BlockAccessor.GetBlockEntity(exitPos)?.GetBehavior<BEBehaviorMPBase>();
             IMechanicalPowerBlock mechBlock = beMechBase?.Block as IMechanicalPowerBlock;
             
@@ -122,10 +106,36 @@ namespace sawmill
                 {
                     return false;
                 }
+                MirroredLinearMotion = beLinear.IsMirroredLinearMotion(api.World, exitPos, propagatePath.OutFacing.Opposite);
             }
             //UpdateMirroredLinearMotion();
             return true;
         }
+
+        public override bool JoinAndSpreadNetworkToNeighbours(ICoreAPI api, MechanicalNetwork network, MechPowerPath exitTurnDir, out Vec3i missingChunkPos)
+        {
+            missingChunkPos = null;
+            if (this.network?.networkId == network?.networkId)
+            {
+                return true;
+            }
+
+            SetPropagationDirection(exitTurnDir);
+            JoinNetwork(network);
+            (Block as IMechanicalPowerBlock).DidConnectAt(api.World, Position, exitTurnDir.OutFacing.Opposite);
+            MechPowerPath[] mechPowerExits = GetMechPowerExits(exitTurnDir);
+            for (int i = 0; i < mechPowerExits.Length; i++)
+            {
+                BlockPos exitPos = Position.AddCopy(mechPowerExits[i].OutFacing);
+                if (!spreadTo(api, network, exitPos, mechPowerExits[i], out missingChunkPos))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private bool OutsideMap(IBlockAccessor blockAccessor, BlockPos exitPos)
         {
             if (exitPos.X < 0 || exitPos.X >= blockAccessor.MapSizeX) return true;
@@ -143,9 +153,9 @@ namespace sawmill
             }
             linearTryConnect(connectedOnFacing);
         }
+
         public virtual bool linearTryConnect(BlockFacing toFacing)
         {
-            Api.Logger.Notification("linearTryConnect:" + Position + ":" + toFacing);
             if (Api == null)
             {
                 return false;
@@ -182,7 +192,6 @@ namespace sawmill
                         return true;
                     }
                 }
-                //UpdateMirroredLinearMotion();
                 return true;
             }
 
@@ -196,6 +205,20 @@ namespace sawmill
             }
 
             return false;
+        }
+
+        public override void ToTreeAttributes(ITreeAttribute tree)
+        {
+            base.ToTreeAttributes(tree);
+            tree.SetBool("mirroredLinearMotion", _mirroredLinearMotion);
+            tree.SetInt("direction", direction);
+        }
+
+        public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
+        {
+            base.FromTreeAttributes(tree, worldAccessForResolve);
+            _mirroredLinearMotion = tree.GetBool("mirroredLinearMotion");
+            direction = tree.GetInt("direction");
         }
     }
 }

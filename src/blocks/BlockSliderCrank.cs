@@ -80,7 +80,8 @@ namespace sawmill
 
         public override void DidConnectAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
-            bool blockExists = world.BlockAccessor.GetBlock(pos.AddCopy(face)) is ILinearMechanicalPowerBlock;
+            BlockPos connectedToPos = pos.AddCopy(face);
+            bool blockExists = world.BlockAccessor.GetBlock(connectedToPos) is ILinearMechanicalPowerBlock;
             BlockEntitySliderCrank entity = world.BlockAccessor.GetBlockEntity(pos) as BlockEntitySliderCrank;
             if (face == orientation.GetCW())
             {
@@ -89,6 +90,11 @@ namespace sawmill
             else if (face == orientation.GetCCW())
             {
                 entity.connectedCCW = blockExists;
+            }
+            if (blockExists)
+            {
+                BEBehaviorLinearMPBase linearBeb = world.BlockAccessor.GetBlockEntity(connectedToPos).GetBehavior<BEBehaviorLinearMPBase>();
+                linearBeb.MirroredLinearMotion = entity.GetBehavior<BEBehaviorMPSliderCrank>().IsMirroredLinearMotion(world, pos, face);
             }
         }
 

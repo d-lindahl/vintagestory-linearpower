@@ -399,16 +399,16 @@ namespace sawmill
         public override void GetBlockInfo(IPlayer forPlayer, StringBuilder sb)
         {
             sb.AppendLine("Sawing:");
-            bool flag = true;
+            bool isSawing = false;
             if (!inv[inputInventoryIndex].Empty)
             {
-                    flag = false;
+                    isSawing = true;
                 string info = "  " + inv[inputInventoryIndex].GetStackName();
                 if (progress > 0)
                     info += " (" + Math.Min(100, Math.Round(progress / processingResistance * 100)) + "%)";
                 sb.AppendLine(info);
             }
-            if (!flag)
+            if (isSawing)
                 return;
             sb.AppendLine("  nothing");
         }

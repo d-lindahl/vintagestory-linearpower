@@ -64,15 +64,6 @@ namespace sawmill
 
         public override void DidConnectAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
-            BEBehaviorLinearMPBase beh;
-            if ((beh = world.BlockAccessor.GetBlockEntity(pos.AddCopy(face))?.GetBehavior<BEBehaviorLinearMPBase>()) != null)
-            {
-
-            }
-            else if (world.BlockAccessor.GetBlockEntity(pos.AddCopy(face)) is BlockEntity nonLinear)
-            {
-
-            }
         }
 
         public override bool tryConnect(IWorldAccessor world, IPlayer byPlayer, BlockPos pos, BlockFacing face)

@@ -54,10 +54,10 @@ namespace sawmill
             BlockFacing powerdFrom = sawmillDev.GetPropagationDirectionInput(); // TODO should decide the offset to keep the saw close to the power direction
             bool flip = sawmillDev.MirroredLinearMotion;
             int mul = 1;
-            if (powerdFrom == sawmillDev.facing)
-            {
-                mul *= -1;
-            }
+            //if (powerdFrom == sawmillDev.facing)
+            //{
+            //    mul *= 1;
+            //}
             //currentLinearOffsetCache.TryGetValue(sawmillDev.NetworkId, out Dictionary <float, Tuple<float, float>> networkCache);
             //if (networkCache == null)
             //{
@@ -82,7 +82,7 @@ namespace sawmill
                     float offset = -0.05f;
                     Vec3f copy = distToCamera.Clone();
                     copy.X += mul * dev.AxisSign[0] * (currentLinearOffset + offset) + dev.AxisSign[2] * -0.04f;
-                    copy.Z += mul * dev.AxisSign[2] * (currentLinearOffset + offset) + dev.AxisSign[0] * -0.04f;
+                    copy.Z += mul * dev.AxisSign[2] * (currentLinearOffset + offset) + Math.Abs(dev.AxisSign[0]) * 0.04f;
                     copy.Y += 0.12f;
                     
                     UpdateLightAndTransformMatrix(matrixAndLightFloatsSaw[metalIndex].Values, quantitySaws[metalIndex], copy, dev.LightRgba, dev.AxisSign[2] * GameMath.PIHALF, dev.AxisSign[0] * GameMath.PIHALF, dev.AxisSign[2] * GameMath.PIHALF + dev.AxisSign[0] * GameMath.PIHALF);
