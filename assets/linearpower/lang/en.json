@@ -11,7 +11,11 @@
     "linearpower:block-sawmill-ebony-*": "Sawmill (Ebony)",
     "linearpower:block-sawmill-walnut-*": "Sawmill (Walnut)",
     "linearpower:block-sawmill-purpleheart-*": "Sawmill (Purpleheart)",
-    "linearpower:block-slidercrank-*": "Slidercrank",
+    "linearpower:block-sawmill-aged-*": "Sawmill (Aged)",
+    "linearpower:block-slidercrank-*": "Slider-crank",
     "linearpower:notValidForSawing": "The item can't be processed in the sawmill",
-    "linearpower:requiresSaw": "Please add a saw before trying to add items"
+    "linearpower:requiresSaw": "Please add a saw before trying to add items",
+
+    "linearpower:linearpowerguide-title": "Game mechanic: Linear mechanical power",
+    "linearpower:linearpowerguide-text": "<strong>Linear mechanical power</strong><br><i>Power transmitted linearly? Madness!</i><br><br>Start by crafting a <strong><a href=\"handbook://block-linearpower:slidercrank-north\">slider-crank</a></strong> and attach it to any existing mechanical power connector.<br>Craft a <strong><a href=\"handbook://block-linearpower:sawmill-birch-north\">sawmill</a></strong> and place it at one of the sides of the slider-crank.<br>Add a <strong><a href=\"handbook://item-saw-copper\">saw</a></strong> of any material to the sawmill.<br><br>You can now add any block or item that is the only ingredient a crafting recipe together with a saw and it will be automatically processed according to the recipe.<br><br>You can replace the current saw by interacting with the sawmill while holding another saw in your hands.<br><br>You can remove the currently processing item by interacting with the sawmill with empty hands."
 }
