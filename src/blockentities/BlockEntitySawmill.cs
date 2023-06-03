@@ -49,7 +49,6 @@ namespace sawmill
         {
             inv = new InventorySawmill(this, 2);
             inv.SlotModified += new Action<int>(Inv_SlotModified);
-            meshes = new MeshData[2];
         }
 
         private void Inv_SlotModified(int slot) => updateMesh(slot);
@@ -388,14 +387,6 @@ namespace sawmill
             MarkDirty(true);
         }
 
-        public override void TranslateMesh(MeshData mesh, int index)
-        {
-            if (index == inputInventoryIndex)
-            {
-                mesh.Scale(new Vec3f(0.5f, 0f, 0.5f), 0.5f, 0.5f, 0.5f);
-            }
-        }
-
         public override void GetBlockInfo(IPlayer forPlayer, StringBuilder sb)
         {
             sb.AppendLine("Sawing:");
@@ -433,6 +424,19 @@ namespace sawmill
                 sawCollectible = sawStack.Collectible;
             }
             accumulatedDurabilityCost = tree.GetFloat("accumulatedDurabilityCost");
+        }
+
+        protected override float[][] genTransformationMatrices()
+        {
+            float[][] tfMatrices = new float[Inventory.Count][];
+
+            tfMatrices[inputInventoryIndex] =
+                    new Matrixf()
+                    .Scale(0.5f, 0.5f, 0.5f)
+                    .Translate(0.5f, 0f, 0.5f)
+                    .Values;
+            
+            return tfMatrices;
         }
     }
 }

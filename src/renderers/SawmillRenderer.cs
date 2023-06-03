@@ -36,7 +36,7 @@ namespace sawmill
             AssetLocation loc = new AssetLocation("game:shapes/item/tool/saw.json");
             Shape shape = Shape.TryGet(capi, loc);
             Vec3f rot = new Vec3f(shapeLoc.rotateX, shapeLoc.rotateY, shapeLoc.rotateZ);
-            texSource = capi.Tesselator.GetTexSource(textureSoureBlock);
+            texSource = capi.Tesselator.GetTextureSource(textureSoureBlock);
             for (int i = 0; i < metals.Length; i++)
             {
                 metal = metals[i];
