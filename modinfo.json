@@ -6,6 +6,6 @@
     "Quaan"
   ],
   "description": "Adds a slider crank to convert angular force to linear force paired with a mechanically powered sawmill",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "dependencies": {}
 }

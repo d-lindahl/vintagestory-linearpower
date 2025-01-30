@@ -1,0 +1,13 @@
+[
+  {
+    "op": "add",
+    "path": "/linearpower:v0.3.1",
+    "value": [
+      "/bir remapq linearpower:slidercrank-generic-north linearpower:slidercrank-north force",
+      "/bir remapq linearpower:slidercrank-generic-east linearpower:slidercrank-east force",
+      "/bir remapq linearpower:slidercrank-generic-south linearpower:slidercrank-south force",
+      "/bir remapq linearpower:slidercrank-generic-west linearpower:slidercrank-west force"
+    ],
+    "file": "game:config/remaps.json"
+  }
+]
