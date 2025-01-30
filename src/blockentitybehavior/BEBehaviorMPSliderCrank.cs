@@ -70,9 +70,6 @@ namespace sawmill
 
         public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tesselator)
         {
-            // add main support
-            Shape shape = capi.Assets.TryGet("linearpower:shapes/block/wood/mechanics/slidercrank-support.json").ToObject<Shape>();
-            
             float rotateY;
             switch (Facing.Index)
             {
@@ -90,22 +87,19 @@ namespace sawmill
                     break;
             }
 
-            capi.Tesselator.TesselateShape((CollectibleObject)this.Block, shape, out MeshData modeldata, new Vec3f(0.0f, rotateY, 0.0f));
-            mesher.AddMeshData(modeldata);
-
             // add piston support if there's a connection
             if (entity.connectedCW || entity.connectedCCW)
             {
-                shape = capi.Assets.TryGet("linearpower:shapes/block/wood/mechanics/slidercrank-slidersupport.json").ToObject<Shape>();
+                Shape shape = capi.Assets.TryGet("linearpower:shapes/block/wood/mechanics/slidercrank-slidersupport.json").ToObject<Shape>();
 
                 if (entity.connectedCCW)
                 {
-                    capi.Tesselator.TesselateShape((CollectibleObject)this.Block, shape, out modeldata, new Vec3f(0.0f, rotateY, 0.0f));
+                    capi.Tesselator.TesselateShape((CollectibleObject)this.Block, shape, out MeshData modeldata, new Vec3f(0.0f, rotateY, 0.0f));
                     mesher.AddMeshData(modeldata);
                 }
                 if (entity.connectedCW)
                 {
-                    capi.Tesselator.TesselateShape((CollectibleObject)this.Block, shape, out modeldata, new Vec3f(0, rotateY + 180, 180));
+                    capi.Tesselator.TesselateShape((CollectibleObject)this.Block, shape, out MeshData modeldata, new Vec3f(0, rotateY + 180, 180));
                     mesher.AddMeshData(modeldata);
                 }
             }

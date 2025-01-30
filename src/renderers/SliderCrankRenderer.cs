@@ -12,34 +12,56 @@ namespace sawmill
 {
     public class SliderCrankRenderer : MechBlockRenderer
     {
-        CustomMeshDataPartFloat matrixAndLightFloatsCrank, matrixAndLightFloatsRod;
-        readonly MeshRef crankMeshRef, rodMeshRef;
-        readonly Vec3f axisCenter = new Vec3f(0.5f, 0.5f, 0.5f);
-        int quantityCranks = 0;
-        int quantityRods = 0;
+        private readonly Dictionary<string, CustomMeshDataPartFloat> matrixAndLightFloatsCrank = new();
+        private readonly Dictionary<string, CustomMeshDataPartFloat> matrixAndLightFloatsRod = new();
+        private readonly Dictionary<string, MeshRef> crankMeshRef = new();
+        private readonly Dictionary<string, MeshRef> rodMeshRef = new();
+        private readonly Dictionary<string, int> quantityCranks = new();
+        private readonly Dictionary<string, int> quantityRods = new();
+        private readonly Vec3f axisCenter = new Vec3f(0.5f, 0.5f, 0.5f);
+        private readonly Vec3f globalRot;
+        private readonly Shape sliderCrankShape;
+        private readonly Shape sliderCrankRodShape;
+
         // cache calculations per orientation and network
+
+        private readonly int count = (16 + 4) * 200;
 
         public SliderCrankRenderer(ICoreClientAPI capi, MechanicalPowerMod mechanicalPowerMod, Block textureSoureBlock, CompositeShape shapeLoc) : base(capi, mechanicalPowerMod)
         {
-            int count = (16 + 4) * 200;
+            globalRot = new Vec3f(shapeLoc.rotateX, shapeLoc.rotateY, shapeLoc.rotateZ);
 
             AssetLocation loc = new AssetLocation("linearpower:shapes/block/wood/mechanics/slidercrank.json");
-            Shape shape = Shape.TryGet(capi, loc);
-            Vec3f rot = new Vec3f(shapeLoc.rotateX, shapeLoc.rotateY, shapeLoc.rotateZ);
-            capi.Tesselator.TesselateShape(textureSoureBlock, shape, out MeshData crankMesh, rot);
-            crankMesh.CustomFloats = matrixAndLightFloatsCrank = createCustomFloats(count);
-            crankMeshRef = capi.Render.UploadMesh(crankMesh);
+            sliderCrankShape = Shape.TryGet(capi, loc);
+            
 
             loc = new AssetLocation("linearpower:shapes/block/wood/mechanics/slidercrank-rod.json");
-            shape = Shape.TryGet(capi, loc);
-            rot = new Vec3f(shapeLoc.rotateX, shapeLoc.rotateY, shapeLoc.rotateZ);
-            capi.Tesselator.TesselateShape(textureSoureBlock, shape, out MeshData rodMesh, rot);
-            rodMesh.CustomFloats = matrixAndLightFloatsRod = createCustomFloats(count);
-            rodMeshRef = capi.Render.UploadMesh(rodMesh);
+            sliderCrankRodShape = Shape.TryGet(capi, loc);
         }
 
         protected override void UpdateLightAndTransformMatrix(int index, Vec3f distToCamera, float rotRad, IMechanicalPowerRenderable dev)
         {
+            // check if material is instanciated
+            var material = dev.Block.Variant["wood"];
+            if (!crankMeshRef.ContainsKey(material))
+            {
+                capi.Tesselator.TesselateShape(dev.Block, sliderCrankShape, out MeshData crankMesh, globalRot);
+                crankMesh.CustomFloats = createCustomFloats(count);
+                matrixAndLightFloatsCrank.Add(material, crankMesh.CustomFloats);
+                crankMeshRef.Add(material, capi.Render.UploadMesh(crankMesh));
+
+                capi.Tesselator.TesselateShape(dev.Block, sliderCrankRodShape, out MeshData rodMesh, globalRot);
+                rodMesh.CustomFloats = createCustomFloats(count);
+                matrixAndLightFloatsRod.Add(material, rodMesh.CustomFloats);
+                rodMeshRef.Add(material, capi.Render.UploadMesh(rodMesh));
+            }
+
+            if (!quantityCranks.ContainsKey(material))
+            {
+                quantityCranks.Add(material, 0);
+                quantityRods.Add(material, 0);
+            }
+
             // check connections
 
             int axX = dev.AxisSign[0];
@@ -51,8 +73,8 @@ namespace sawmill
             // Crank
             float rotX = dev.AngleRad * -axXAbs;
             float rotZ = dev.AngleRad * -axZAbs;
-            UpdateLightAndTransformMatrix(matrixAndLightFloatsCrank.Values, quantityCranks, distToCamera, dev.LightRgba, rotX, rotZ, axisCenter, new Vec3f());
-            quantityCranks++;
+            UpdateLightAndTransformMatrix(matrixAndLightFloatsCrank[material].Values, quantityCranks[material], distToCamera, dev.LightRgba, rotX, rotZ, axisCenter, new Vec3f());
+            quantityCranks[material]++;
             BEBehaviorMPSliderCrank devSliderCrank = dev as BEBehaviorMPSliderCrank;
             if (devSliderCrank.entity.NeedsPistonSupport())
             {
@@ -65,17 +87,17 @@ namespace sawmill
 
                 if (devSliderCrank.entity.connectedCCW)
                 {
-                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod.Values, quantityRods, distToCamera, dev.LightRgba, -axXAbs * rodRotation, -axZAbs * rodRotation, axisCenter, pinPosition);
-                    quantityRods++;
-                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod.Values, quantityRods, distToCamera, dev.LightRgba, (float)(axZAbs * Math.PI), (float)(axXAbs * Math.PI), axisCenter, pistonPosition);
-                    quantityRods++;
+                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod[material].Values, quantityRods[material], distToCamera, dev.LightRgba, -axXAbs * rodRotation, -axZAbs * rodRotation, axisCenter, pinPosition);
+                    quantityRods[material]++;
+                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod[material].Values, quantityRods[material], distToCamera, dev.LightRgba, (float)(axZAbs * Math.PI), (float)(axXAbs * Math.PI), axisCenter, pistonPosition);
+                    quantityRods[material]++;
                 }
                 if (devSliderCrank.entity.connectedCW)
                 {
-                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod.Values, quantityRods, distToCamera, dev.LightRgba, (float)(-axXAbs * rodRotationMirror - Math.PI), (float)(-axZAbs * rodRotation - Math.PI), axisCenter, pinPositionOffset);
-                    quantityRods++;
-                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod.Values, quantityRods, distToCamera, dev.LightRgba, (float)(axZAbs * Math.PI + axXAbs * Math.PI), (float)(axXAbs * Math.PI + axZ * Math.PI), axisCenter, pistonPositionMirror * -1);
-                    quantityRods++;
+                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod[material].Values, quantityRods[material], distToCamera, dev.LightRgba, (float)(-axXAbs * rodRotationMirror - Math.PI), (float)(-axZAbs * rodRotation - Math.PI), axisCenter, pinPositionOffset);
+                    quantityRods[material]++;
+                    UpdateLightAndTransformMatrix(matrixAndLightFloatsRod[material].Values, quantityRods[material], distToCamera, dev.LightRgba, (float)(axZAbs * Math.PI + axXAbs * Math.PI), (float)(axXAbs * Math.PI + axZ * Math.PI), axisCenter, pistonPositionMirror * -1);
+                    quantityRods[material]++;
                 }
             }
         }
@@ -150,26 +172,32 @@ namespace sawmill
 
         public override void OnRenderFrame(float deltaTime, IShaderProgram prog)
         {
-            quantityCranks = 0;
-            quantityRods = 0;
-
             UpdateCustomFloatBuffer();
 
             // Cranks
-            if (quantityCranks > 0)
+            foreach (var entry in quantityCranks)
             {
-                matrixAndLightFloatsCrank.Count = quantityCranks * 20;
-                updateMesh.CustomFloats = matrixAndLightFloatsCrank;
-                capi.Render.UpdateMesh(crankMeshRef, updateMesh);
-                capi.Render.RenderMeshInstanced(crankMeshRef, quantityCranks);
+                if (entry.Value > 0)
+                {
+                    matrixAndLightFloatsCrank[entry.Key].Count = entry.Value * 20;
+                    updateMesh.CustomFloats = matrixAndLightFloatsCrank[entry.Key];
+                    capi.Render.UpdateMesh(crankMeshRef[entry.Key], updateMesh);
+                    capi.Render.RenderMeshInstanced(crankMeshRef[entry.Key], entry.Value);
+                }
+                quantityCranks[entry.Key] = 0;
             }
+
             // Rods and pistons
-            if (quantityRods > 0)
+            foreach (var entry in quantityRods)
             {
-                matrixAndLightFloatsRod.Count = quantityRods * 20;
-                updateMesh.CustomFloats = matrixAndLightFloatsRod;
-                capi.Render.UpdateMesh(rodMeshRef, updateMesh);
-                capi.Render.RenderMeshInstanced(rodMeshRef, quantityRods);
+                if (entry.Value > 0)
+                {
+                    matrixAndLightFloatsRod[entry.Key].Count = entry.Value * 20;
+                    updateMesh.CustomFloats = matrixAndLightFloatsRod[entry.Key];
+                    capi.Render.UpdateMesh(rodMeshRef[entry.Key], updateMesh);
+                    capi.Render.RenderMeshInstanced(rodMeshRef[entry.Key], entry.Value);
+                }
+                quantityRods[entry.Key] = 0;
             }
         }
 
@@ -177,8 +205,14 @@ namespace sawmill
         {
             base.Dispose();
 
-            crankMeshRef?.Dispose();
-            rodMeshRef?.Dispose();
+            foreach (var meshRef in crankMeshRef.Values)
+            {
+                meshRef.Dispose();
+            }
+            foreach (var meshRef in rodMeshRef.Values)
+            {
+                meshRef.Dispose();
+            }
         }
     }
 }

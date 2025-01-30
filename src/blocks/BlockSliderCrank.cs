@@ -31,7 +31,7 @@ namespace sawmill
                 if (world.BlockAccessor.GetBlock(pos) is IMechanicalPowerBlock block && !(world.BlockAccessor.GetBlock(pos) is ILinearMechanicalPowerBlock)
                     && block.HasMechPowerConnectorAt(world, pos, blockFacing.Opposite))
                 {
-                    AssetLocation blockCode = new AssetLocation("linearpower:" + FirstCodePart() + "-" + blockFacing);
+                    AssetLocation blockCode = new AssetLocation("linearpower:" + CodeWithoutParts(1) + "-" + blockFacing);
                     if (world.GetBlock(blockCode).DoPlaceBlock(world, byPlayer, blockSel, itemstack))
                     {
                         orientation = blockFacing;
@@ -52,7 +52,7 @@ namespace sawmill
             {
                 world.BlockAccessor.BreakBlock(pos, null);
             }
-            if (!(block is ILinearMechanicalPowerBlock))
+            if (block is not ILinearMechanicalPowerBlock || block is BlockSliderCrank)
             {
                 BlockEntitySliderCrank entity = world.BlockAccessor.GetBlockEntity(pos) as BlockEntitySliderCrank;
                 if (neibpos.FacingFrom(pos) == orientation.GetCCW())

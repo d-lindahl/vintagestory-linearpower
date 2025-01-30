@@ -17,12 +17,12 @@ namespace sawmill
                 Facing = BlockFacing.NORTH;
 
             Block checkBlock = api.World.BlockAccessor.GetBlock(Pos.AddCopy(Facing.GetCW()));
-            if (checkBlock is ILinearMechanicalPowerBlock && !(checkBlock is BlockSliderCrank))
+            if (checkBlock is ILinearMechanicalPowerBlock && checkBlock is not BlockSliderCrank)
             {
                 connectedCW = true;
             }
             checkBlock = api.World.BlockAccessor.GetBlock(Pos.AddCopy(Facing.GetCCW()));
-            if (checkBlock is ILinearMechanicalPowerBlock && !(checkBlock is BlockSliderCrank))
+            if (checkBlock is ILinearMechanicalPowerBlock && checkBlock is not BlockSliderCrank)
             {
                 connectedCCW = true;
             }

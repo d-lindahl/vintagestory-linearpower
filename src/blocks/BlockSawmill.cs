@@ -35,6 +35,8 @@ namespace sawmill
             return orientation == face || orientation == face.Opposite;
         }
 
+
+
         public override bool TryPlaceBlock(
             IWorldAccessor world,
             IPlayer byPlayer,
@@ -49,7 +51,7 @@ namespace sawmill
                 BlockPos pos = blockSel.Position.AddCopy(blockFacing);
                 if (world.BlockAccessor.GetBlock(pos) is ILinearMechanicalPowerBlock block && block.HasLinearMechPowerConnectorAt(world, pos, blockFacing.Opposite))
                 {
-                    AssetLocation blockCode = new AssetLocation(Code.Clone().WithoutPathAppendix(Code.EndVariant()) + blockFacing.Code);
+                    AssetLocation blockCode = new(Code.Clone().WithoutPathAppendix(Code.EndVariant()) + blockFacing.Code);
                     if (world.GetBlock(blockCode).DoPlaceBlock(world, byPlayer, blockSel, itemstack))
                     {
                         orientation = blockFacing;

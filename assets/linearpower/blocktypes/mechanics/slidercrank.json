@@ -16,14 +16,19 @@
         "mechanics": [ "*-north" ]
     },
     "behaviors": [ { "name": "HorizontalOrientable" } ],
-    "variantgroups": [
-        {
-            "code": "side",
-            "loadFromProperties": "abstract/horizontalorientation"
-        }
-    ],
+  "variantgroups": [
+    {
+      "code": "wood",
+      "states": [ "aged", "generic" ],
+      "loadFromProperties": "block/wood"
+    },
+    {
+      "code": "side",
+      "loadFromProperties": "abstract/horizontalorientation"
+    }
+  ],
     "shape": {
-        "base": "block/wood/mechanics/slidercrank",
+        "base": "block/wood/mechanics/slidercrank-support",
         "rotateYByType": {
             "*-north": 270,
             "*-east": 180,
@@ -36,9 +41,9 @@
     },
     "blockmaterial": "Wood",
     "textures": {
-        "all": {
-            "base": "game:block/wood/planks/generic"
-        }
+      "wood": {
+        "base": "game:block/wood/planks/{wood}*"
+      }
     },
     "collisionselectionbox": {
         "x1": 0,
@@ -95,7 +100,7 @@
     "drops": [
         {
             "type": "block",
-            "code": "slidercrank-north"
+            "code": "slidercrank-{wood}-north"
         }
     ]
 }

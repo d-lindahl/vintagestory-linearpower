@@ -1,5 +1,7 @@
 ﻿using System;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.GameContent.Mechanics;
@@ -25,6 +27,12 @@ namespace sawmill
                     Blockentity.MarkDirty();
                 }
             }
+        }
+
+        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
+        {
+            base.OnTesselation(mesher, tessThreadTesselator);
+            return false;
         }
 
         public virtual bool IsMirroredLinearMotion(IWorldAccessor world, BlockPos pos, BlockFacing facing)
@@ -94,7 +102,7 @@ namespace sawmill
             if (beMechBase == null && api.World.BlockAccessor.GetChunkAtBlockPos(exitPos) == null)
             {
                 if (OutsideMap(api.World.BlockAccessor, exitPos)) return true;  //Network discovery should not fail if there cannot be a block in this position
-                missingChunkPos = new Vec3i(exitPos.X / api.World.BlockAccessor.ChunkSize, exitPos.Y / api.World.BlockAccessor.ChunkSize, exitPos.Z / api.World.BlockAccessor.ChunkSize);
+                missingChunkPos = new Vec3i(exitPos.X / GlobalConstants.ChunkSize, exitPos.Y / GlobalConstants.ChunkSize, exitPos.Z / GlobalConstants.ChunkSize);
                 return false;
             }
 

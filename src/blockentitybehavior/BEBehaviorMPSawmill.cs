@@ -19,7 +19,7 @@ namespace sawmill
 
         static BEBehaviorMPSawmill()
         {
-            bitsParticles = new SimpleParticleProperties(50f, 60f, ColorUtil.ToRgba(40, 220, 220, 220), new Vec3d(), new Vec3d(), new Vec3f(-0.25f, -0.25f, -0.25f), new Vec3f(0.25f, 0.25f, 0.25f), 1f, 1f, 0.1f, 0.4f, EnumParticleModel.Quad);
+            bitsParticles = new(50f, 60f, ColorUtil.ToRgba(40, 220, 220, 220), new Vec3d(), new Vec3d(), new(-0.25f, -0.25f, -0.25f), new(0.25f, 0.25f, 0.25f), 1f, 1f, 0.1f, 0.4f, EnumParticleModel.Quad);
             bitsParticles.AddQuantity = 0f;
             bitsParticles.MinVelocity.Set(-1f, 0f, -1f);
             bitsParticles.AddVelocity.Set(2f, 2f, 2f);
@@ -60,7 +60,7 @@ namespace sawmill
 
         public override void OnClientSideChangeDirection(int newDirection)
         {
-            ItemStack itemstack = blockEntitySawmill.Inventory[BlockEntitySawmill.inputInventoryIndex].Itemstack;
+            ItemStack itemstack = blockEntitySawmill.InputItemStack;
             if (itemstack != null)
             {
                 AssetLocation sound = newDirection == 1 ? sawSound : sawRevSound;

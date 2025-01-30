@@ -6,8 +6,11 @@ namespace sawmill
 {
     public class LinearPowerModSystem : ModSystem
     {
+        public static ICoreAPI apiInstance;
+
         public override void Start(ICoreAPI api)
         {
+            apiInstance = api;
             try
             {
                 LinearPowerConfig linearPowerConfig = api.LoadModConfig<LinearPowerConfig>("linearpower.json");
@@ -60,7 +63,7 @@ namespace sawmill
         {
             return new LinearPowerConfig()
             {
-                sawDegradeRate = 10
+                sawDegradeRate = 0
             };
         }
     }

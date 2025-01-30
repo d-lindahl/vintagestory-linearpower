@@ -7,50 +7,24 @@ using Vintagestory.GameContent.Mechanics;
 
 namespace sawmill
 {
-    public class SawmillRenderer : MechBlockRenderer, ITexPositionSource
+    public class SawmillRenderer : MechBlockRenderer
     {
-        public static string[] metals = new string[9] { "copper", "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel" };
-        private readonly CustomMeshDataPartFloat[] matrixAndLightFloatsSaw = new CustomMeshDataPartFloat[metals.Length];
-        private readonly MeshRef[] sawMeshrefs = new MeshRef[metals.Length];
-        private readonly int[] quantitySaws = new int[metals.Length];
-        private readonly ITexPositionSource texSource;
-        private readonly string metal;
+        private readonly Dictionary<string, CustomMeshDataPartFloat> matrixAndLightFloatsSaw = new();
+        private readonly Dictionary<string, MeshRef> sawMeshrefs = new();
+        private readonly Dictionary<string, int> quantitySaws = new();
+        private readonly int count = (16 + 4) * 200;
         //private readonly Dictionary<long, Dictionary<float, Tuple<float, float>>> currentLinearOffsetCache = new Dictionary<long, Dictionary<float, Tuple<float, float>>>();
 
         public Size2i AtlasSize => capi.BlockTextureAtlas.Size;
 
-        public TextureAtlasPosition this[string textureCode]
-        {
-            get
-            {
-                if (textureCode == "metal")
-                    return texSource["saw-metal-" + metal];
-                return texSource["saw-" + textureCode];
-            }
-        }
-
         public SawmillRenderer(ICoreClientAPI capi, MechanicalPowerMod mechanicalPowerMod, Block textureSoureBlock, CompositeShape shapeLoc) : base(capi, mechanicalPowerMod)
         {
-            int count = (16 + 4) * 200;
-
-            AssetLocation loc = new AssetLocation("game:shapes/item/tool/saw.json");
-            Shape shape = Shape.TryGet(capi, loc);
-            Vec3f rot = new Vec3f(shapeLoc.rotateX, shapeLoc.rotateY, shapeLoc.rotateZ);
-            texSource = capi.Tesselator.GetTextureSource(textureSoureBlock);
-            for (int i = 0; i < metals.Length; i++)
-            {
-                metal = metals[i];
-                matrixAndLightFloatsSaw[i] = CreateCustomFloats(count);
-                capi.Tesselator.TesselateShape("sawmill-saw", shape, out MeshData sawMeshData, this, rot);
-                sawMeshData.CustomFloats = matrixAndLightFloatsSaw[i];
-                sawMeshrefs[i] = capi.Render.UploadMesh(sawMeshData);
-            }
         }
 
         protected override void UpdateLightAndTransformMatrix(int index, Vec3f distToCamera, float rotRad, IMechanicalPowerRenderable dev)
         {
             BEBehaviorMPSawmill sawmillDev = dev as BEBehaviorMPSawmill;
-            
+
             BlockFacing powerdFrom = sawmillDev.GetPropagationDirectionInput(); // TODO should decide the offset to keep the saw close to the power direction
             bool flip = sawmillDev.MirroredLinearMotion;
             int mul = 1;
@@ -75,25 +49,38 @@ namespace sawmill
 
             if (sawmillDev.blockEntitySawmill.HasSaw)
             {
-                int metalIndex = sawmillDev.blockEntitySawmill.sawMetalIndex;
-                if (sawmillDev.blockEntitySawmill.HasSaw && metalIndex >= 0)
+                string metal = sawmillDev.blockEntitySawmill.sawMetal;
+
+                if (!quantitySaws.ContainsKey(metal))
                 {
-                    
-                    float offset = -0.05f;
-                    Vec3f copy = distToCamera.Clone();
-                    copy.X += mul * dev.AxisSign[0] * (currentLinearOffset + offset) + dev.AxisSign[2] * -0.04f;
-                    copy.Z += mul * dev.AxisSign[2] * (currentLinearOffset + offset) + Math.Abs(dev.AxisSign[0]) * 0.04f;
-                    copy.Y += 0.12f;
-                    
-                    UpdateLightAndTransformMatrix(matrixAndLightFloatsSaw[metalIndex].Values, quantitySaws[metalIndex], copy, dev.LightRgba, dev.AxisSign[2] * GameMath.PIHALF, dev.AxisSign[0] * GameMath.PIHALF, dev.AxisSign[2] * GameMath.PIHALF + dev.AxisSign[0] * GameMath.PIHALF);
-                    quantitySaws[metalIndex]++;
+                    quantitySaws.Add(metal, 0);
                 }
+
+                // check if saw mesh exists for this metal
+                if (!matrixAndLightFloatsSaw.ContainsKey(metal))
+                {
+                    CustomMeshDataPartFloat customFloats = CreateCustomFloats(count);
+                    matrixAndLightFloatsSaw.Add(metal, customFloats);
+                    MeshData sawMeshData = sawmillDev.blockEntitySawmill.GetOrCreateMesh(sawmillDev.blockEntitySawmill.SawItemStack);
+                    sawMeshData.CustomFloats = customFloats;
+                    sawMeshrefs.Add(metal, capi.Render.UploadMesh(sawMeshData));
+
+                }
+
+                float offset = -0.05f;
+                Vec3f copy = distToCamera.Clone();
+                copy.X += mul * dev.AxisSign[0] * (currentLinearOffset + offset) + dev.AxisSign[2] * -0.04f;
+                copy.Z += mul * dev.AxisSign[2] * (currentLinearOffset + offset) + Math.Abs(dev.AxisSign[0]) * 0.04f;
+                copy.Y += 0.12f;
+
+                UpdateLightAndTransformMatrix(matrixAndLightFloatsSaw[metal].Values, quantitySaws[metal], copy, dev.LightRgba, GameMath.PIHALF, 0, dev.AxisSign[2] * GameMath.PIHALF);
+                quantitySaws[metal]++;
             }
         }
 
-        private CustomMeshDataPartFloat CreateCustomFloats(int count)
+        private static CustomMeshDataPartFloat CreateCustomFloats(int count)
         {
-            CustomMeshDataPartFloat result = new CustomMeshDataPartFloat(count)
+            CustomMeshDataPartFloat result = new(count)
             {
                 Instanced = true,
                 InterleaveOffsets = new int[] { 0, 16, 32, 48, 64 },
@@ -109,18 +96,31 @@ namespace sawmill
         {
             UpdateCustomFloatBuffer();
 
-            for (int i = 0; i < metals.Length; i++)
+            foreach (var entry in quantitySaws)
             {
-                if (quantitySaws[i] > 0)
+                if (entry.Value > 0)
                 {
-                    matrixAndLightFloatsSaw[i].Count = quantitySaws[i] * 20;
-                    updateMesh.CustomFloats = matrixAndLightFloatsSaw[i];
-                    capi.Render.UpdateMesh(sawMeshrefs[i], updateMesh);
-                    capi.Render.RenderMeshInstanced(sawMeshrefs[i], quantitySaws[i]);
+                    matrixAndLightFloatsSaw[entry.Key].Count = entry.Value * 20;
+                    updateMesh.CustomFloats = matrixAndLightFloatsSaw[entry.Key];
+                    capi.Render.UpdateMesh(sawMeshrefs[entry.Key], updateMesh);
+                    capi.Render.RenderMeshInstanced(sawMeshrefs[entry.Key], quantitySaws[entry.Key]);
                 }
-                quantitySaws[i] = 0;
+                quantitySaws[entry.Key] = 0;
             }
             //currentLinearOffsetCache.Clear();
+
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            foreach (var meshRef in sawMeshrefs.Values)
+            {
+                meshRef.Dispose();
+            }
+            matrixAndLightFloatsSaw.Clear();
+            quantitySaws.Clear();
         }
     }
 }

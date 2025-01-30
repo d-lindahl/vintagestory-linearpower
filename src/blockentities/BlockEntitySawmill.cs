@@ -16,14 +16,14 @@ namespace sawmill
     public class BlockEntitySawmill : BlockEntityDisplay
     {
         private readonly InventorySawmill inv;
-        private CollectibleObject sawCollectible;
         public int sawToolTier;
-        public int sawMetalIndex;
+        public string sawMetal;
         private float progress;
         public float processingResistance;
-        public static readonly int inputInventoryIndex = 0;
-        public static readonly int sawInventoryIndex = 1;
-        
+        private static readonly int inputInventoryIndex = 0;
+        private static readonly int sawInventoryIndex = 1;
+
+
         private List<GridRecipe> sawGridRecipes;
         private HashSet<GridRecipeIngredient> sawRecipeIngredients;
         private Dictionary<string, bool> validIngredientCodes;
@@ -39,11 +39,27 @@ namespace sawmill
 
         public override InventoryBase Inventory => inv;
 
+        public override int DisplayedItems => 1;
+
         public override string InventoryClassName => "sawmill";
+        private ItemSlot InputInventory => inv[inputInventoryIndex];
+        public ItemStack InputItemStack => InputInventory.Itemstack;
+        public ItemSlot SawInventory => inv[sawInventoryIndex];
+        public bool HasSaw => !SawInventory.Empty;
 
-        public bool HasSaw => !inv[sawInventoryIndex].Empty;
+        public ItemStack SawItemStack
+        {
+            get
+            {
+                return SawInventory.Itemstack;
+            }
+            set
+            {
+                SawInventory.Itemstack = value;
+            }
+        }
 
-        public CollectibleObject GetSawCollectible => inv[sawInventoryIndex].Itemstack?.Collectible;
+        public Item GetSawItem => SawItemStack?.Item;
 
         public BlockEntitySawmill()
         {
@@ -57,7 +73,7 @@ namespace sawmill
         {
             Facing = BlockFacing.FromCode(Block.Variant["side"]);
             base.Initialize(api);
-            
+
             UpdateSawInfo();
             inv.LateInitialize(InventoryClassName + "-" + Pos?.ToString(), api);
             UpdateCache(api);
@@ -66,9 +82,14 @@ namespace sawmill
                 RegisterGameTickListener(OnServerTick, 1000);
         }
 
+        public MeshData GetOrCreateMesh(ItemStack stack)
+        {
+            return getOrCreateMesh(stack, -1);
+        }
+
         private void UpdateCache(ICoreAPI api)
         {
-            if (!api.ObjectCache.ContainsKey(sawRecipeCacheKey))
+            if (!api.ObjectCache.TryGetValue(sawRecipeCacheKey, out object value))
             {
                 sawGridRecipes = FindApplicableSawRecipes(api.World);
                 api.ObjectCache.Add(sawRecipeCacheKey, sawGridRecipes);
@@ -84,7 +105,7 @@ namespace sawmill
             }
             else
             {
-                sawGridRecipes = (List<GridRecipe>)api.ObjectCache[sawRecipeCacheKey];
+                sawGridRecipes = (List<GridRecipe>)value;
                 sawRecipeIngredients = (HashSet<GridRecipeIngredient>)api.ObjectCache[sawRecipeIngredientsCacheKey];
                 validIngredientCodes = (Dictionary<string, bool>)api.ObjectCache[sawValidIngredientCodesKey];
             }
@@ -93,7 +114,7 @@ namespace sawmill
         private void OnServerTick(float dx)
         {
             float oldProgress = progress;
-            if (processingResistance == 0 && !inv[inputInventoryIndex].Empty)
+            if (processingResistance == 0 && !InputInventory.Empty)
             {
                 UpdateItemResistance();
                 progress = 0;
@@ -131,10 +152,11 @@ namespace sawmill
 
         private void Cut()
         {
-            GridRecipe applicableRecipe = GetApplicableRecipe(inv[inputInventoryIndex]);
+            GridRecipe applicableRecipe = GetApplicableRecipe(InputInventory);
             if (applicableRecipe == null)
             {
-                Api.World.SpawnItemEntity(inv[inputInventoryIndex].TakeOut(1), Pos.ToVec3d());
+                Api.World.SpawnItemEntity(InputInventory.TakeOut(1), Pos.ToVec3d());
+                MarkDirty(redrawOnClient: true);
                 return;
             }
             
@@ -142,7 +164,7 @@ namespace sawmill
             ItemStack outputStack = applicableRecipe.Output.ResolvedItemstack.Clone();
             if (applicableRecipe.CopyAttributesFrom != null)
             {
-                ItemStack inputStackForPatternCode = applicableRecipe.GetInputStackForPatternCode(applicableRecipe.CopyAttributesFrom, new ItemSlot[] { inv[inputInventoryIndex] });
+                ItemStack inputStackForPatternCode = applicableRecipe.GetInputStackForPatternCode(applicableRecipe.CopyAttributesFrom, new ItemSlot[] { InputInventory });
                 if (inputStackForPatternCode != null)
                 {
                     ITreeAttribute treeAttribute = inputStackForPatternCode.Attributes.Clone();
@@ -150,7 +172,7 @@ namespace sawmill
                     outputStack.Attributes = treeAttribute;
                 }
             }
-            inv[inputInventoryIndex].TakeOut(1);
+            InputInventory.TakeOut(1);
 
             if (LinearPowerConfig.Current.sawDegradeRate > 0)
             {
@@ -174,37 +196,39 @@ namespace sawmill
 
         private void DamageSaw(int amount)
         {
-            ItemStack itemstack = inv[sawInventoryIndex].Itemstack;
+            ItemStack itemstack = SawItemStack;
             int remainingDurability = itemstack.Collectible.GetRemainingDurability(itemstack);
             remainingDurability -= amount;
             itemstack.Attributes.SetInt("durability", remainingDurability);
             if (remainingDurability <= 0)
             {
-                inv[sawInventoryIndex].Itemstack = null;
+                SawInventory.Itemstack = null;
                 Api.World.PlaySoundAt(new AssetLocation("sounds/effect/toolbreak"), Pos.X, Pos.Y, Pos.Z, null, 1f, 16f);
                 Api.World.SpawnCubeParticles(Pos.ToVec3d() + new Vec3d(0.5, 0.5, 0.5), itemstack, 0.25f, 30, 1f);
             }
-
-            inv[sawInventoryIndex].MarkDirty();
         }
 
         public ItemStack[] GetDrops(ItemStack sawmillStack)
         {
-            List<ItemStack> drops = new List<ItemStack>
+            List<ItemStack> drops = new()
             {
                 sawmillStack
             };
-            if (inv[inputInventoryIndex] != null)
-                drops.Add(inv[inputInventoryIndex].TakeOutWhole());
-            if (inv[sawInventoryIndex] != null)
-                drops.Add(inv[sawInventoryIndex].TakeOutWhole());
+            if (!InputInventory.Empty)
+            {
+                drops.Add(InputInventory.TakeOutWhole());
+            }
+            if (HasSaw)
+            {
+                drops.Add(SawInventory.TakeOutWhole());
+            }
             return drops.ToArray();
         }
 
         public bool OnInteract(IPlayer byPlayer)
         {
             ItemSlot activeHotbarSlot = byPlayer.InventoryManager.ActiveHotbarSlot;
-            ItemSlot itemSlot = inv[inputInventoryIndex];
+            ItemSlot itemSlot = InputInventory;
             if (activeHotbarSlot.Empty)
             {
                 TryTake(itemSlot, byPlayer);
@@ -213,7 +237,7 @@ namespace sawmill
             {
                 if (activeHotbarSlot.Itemstack.Collectible.Code.Path.StartsWith("saw-"))
                 {
-                    TryPut(byPlayer, activeHotbarSlot, inv[sawInventoryIndex]);
+                    TryPut(byPlayer, activeHotbarSlot, SawInventory);
                     UpdateSawInfo();
                     return true;
                 }
@@ -252,31 +276,23 @@ namespace sawmill
             return isValid;
         }
 
-        protected override void updateMesh(int index)
-        {
-            if (index == inputInventoryIndex)
-            {
-                base.updateMesh(index);
-            }
-        }
-
         private void UpdateItemResistance()
         {
             float itemResistance;
             Block invBlock;
-            if ((invBlock = inv[inputInventoryIndex].Itemstack?.Block) != null)
+            if ((invBlock = InputItemStack?.Block) != null)
             {
                 itemResistance = invBlock.Resistance;
-                if (sawCollectible.MiningSpeed.ContainsKey(invBlock.BlockMaterial))
+                if (SawItemStack.Collectible.MiningSpeed.TryGetValue(invBlock.BlockMaterial, out float value))
                 {
-                    itemResistance /= sawCollectible.MiningSpeed[invBlock.BlockMaterial];
+                    itemResistance /= value;
                 }
                 else
                 {
                     itemResistance /= sawToolTier;
                 }
             }
-            else if (inv[inputInventoryIndex].Itemstack?.Collectible != null)
+            else if (InputItemStack?.Collectible != null)
             {
                 itemResistance = 1.0f / sawToolTier;
             }
@@ -289,21 +305,19 @@ namespace sawmill
 
         private void UpdateSawInfo()
         {
-            if (inv[sawInventoryIndex].Empty)
+            if (SawItemStack == null)
             {
                 sawToolTier = 0;
-                sawMetalIndex = 0;
+                sawMetal = null;
             }
             else
             {
-                sawCollectible = inv[sawInventoryIndex].Itemstack.Collectible;
-                string key = inv[sawInventoryIndex].Itemstack.Collectible.Variant["metal"];
-                sawToolTier = sawCollectible.ToolTier;
-                sawMetalIndex = Math.Max(0, SawmillRenderer.metals.IndexOf<string>(key));
+                sawToolTier = SawItemStack.Collectible.ToolTier;
+                sawMetal = SawItemStack.Collectible.Variant["metal"];
             }
         }
 
-        private List<GridRecipe> FindApplicableSawRecipes(IWorldAccessor world)
+        private static List<GridRecipe> FindApplicableSawRecipes(IWorldAccessor world)
         {
             return world.GridRecipes.FindAll(recipe => recipe.Enabled && recipe.resolvedIngredients.Length == 2).FindAll(recipe =>
             {
@@ -367,41 +381,86 @@ namespace sawmill
             if (!to.Empty && !byPlayer.InventoryManager.TryGiveItemstack(to.Itemstack, true))
                 Api.World.SpawnItemEntity(to.Itemstack, Pos.ToVec3d().Add(0.5, 0.5, 0.5));
             to.Itemstack = taken;
+            to.MarkDirty();
+            if (Api is ICoreClientAPI api)
+            {
+                Vec3d vec3d = Pos.ToVec3d().Add(0.5, 0.25, 0.5);
+                AssetLocation sound;
+                if (to.Itemstack?.Block != null)
+                {
+                    sound = to.Itemstack.Block.Sounds.Place;
+                }
+                else
+                {
+                    sound = Block.Sounds.Place;
+                }
+                api.World.PlaySoundAt(sound, vec3d.X + 0.5, vec3d.Y + 0.5, vec3d.Z + 0.5, byPlayer);
+                api.World.Player.TriggerFpAnimation(EnumHandInteract.HeldItemInteract);
+            }
+            UpdateItemResistance();
+            progress = 0;
+            MarkDirty(redrawOnClient: true);
+        }
+
+        private void TryPut(IPlayer byPlayer, ItemSlot from, ItemStack to)
+        {
+            ItemStack taken;
+            if (byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative)
+            {
+                taken = from.TakeOut(1);
+                from.MarkDirty();
+
+            }
+            else
+            {
+                taken = from.Itemstack.Clone();
+                taken.StackSize = 1;
+
+            }
+            if (to != null && !byPlayer.InventoryManager.TryGiveItemstack(to, true))
+            {
+                Api.World.SpawnItemEntity(to, Pos.ToVec3d().Add(0.5, 0.5, 0.5));
+            }
+            SawItemStack = taken;
             Vec3d vec3d = Pos.ToVec3d().Add(0.5, 0.25, 0.5);
             this.Api.World.PlaySoundAt(Block.Sounds.Place, vec3d.X + 0.5, vec3d.Y + 0.5, vec3d.Z + 0.5, byPlayer);
             if (Api is ICoreClientAPI api)
                 api.World.Player.TriggerFpAnimation(EnumHandInteract.HeldItemInteract);
             UpdateItemResistance();
             progress = 0;
-            MarkDirty(true);
-            
+            MarkDirty(redrawOnClient: true);
         }
 
 
         private void TryTake(ItemSlot fromSlot, IPlayer toPlayer)
         {
             ItemStack itemstack = fromSlot.TakeOut(1);
-            if (!toPlayer.InventoryManager.TryGiveItemstack(itemstack))
-                Api.World.SpawnItemEntity(itemstack, Pos.ToVec3d().Add(0.5, 0.1, 0.5));
-            UpdateItemResistance();
-            MarkDirty(true);
+            if (itemstack != null)
+            {
+                if (!toPlayer.InventoryManager.TryGiveItemstack(itemstack))
+                    Api.World.SpawnItemEntity(itemstack, Pos.ToVec3d().Add(0.5, 0.1, 0.5));
+                UpdateItemResistance();
+                MarkDirty(true);
+            }
         }
 
         public override void GetBlockInfo(IPlayer forPlayer, StringBuilder sb)
         {
-            sb.AppendLine("Sawing:");
-            bool isSawing = false;
-            if (!inv[inputInventoryIndex].Empty)
+            sb.AppendLine(Lang.Get("linearpower:sawInfo", (SawInventory.Empty ? Lang.Get("linearpower:generic-none") : SawInventory.GetStackName())));
+            
+            String sawingInfo;
+            if (!InputInventory.Empty)
             {
-                    isSawing = true;
-                string info = "  " + inv[inputInventoryIndex].GetStackName();
+                string info = InputInventory.GetStackName();
                 if (progress > 0)
                     info += " (" + Math.Min(100, Math.Round(progress / processingResistance * 100)) + "%)";
-                sb.AppendLine(info);
+                sawingInfo = info;
             }
-            if (isSawing)
-                return;
-            sb.AppendLine("  nothing");
+            else
+            {
+                sawingInfo = Lang.Get("linearpower:generic-nothing");
+            }
+            sb.AppendLine(Lang.Get("linearpower:sawingInfo", sawingInfo));
         }
 
         public override void ToTreeAttributes(ITreeAttribute tree)
@@ -409,7 +468,7 @@ namespace sawmill
             base.ToTreeAttributes(tree);
             tree.SetFloat("progress", progress);
             tree.SetFloat("processingResistance", processingResistance);
-            tree.SetItemstack("sawStack", inv[sawInventoryIndex].Itemstack);
+            tree.SetItemstack("sawStack", SawItemStack);
             tree.SetFloat("accumulatedDurabilityCost", accumulatedDurabilityCost);
         }
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
@@ -421,21 +480,21 @@ namespace sawmill
             if (sawStack != null)
             {
                 sawStack.ResolveBlockOrItem(worldForResolving);
-                sawCollectible = sawStack.Collectible;
+                SawItemStack = sawStack;
             }
             accumulatedDurabilityCost = tree.GetFloat("accumulatedDurabilityCost");
         }
 
+        
         protected override float[][] genTransformationMatrices()
         {
-            float[][] tfMatrices = new float[Inventory.Count][];
+            float[][] tfMatrices = new float[1][];
 
             tfMatrices[inputInventoryIndex] =
                     new Matrixf()
                     .Scale(0.5f, 0.5f, 0.5f)
                     .Translate(0.5f, 0f, 0.5f)
                     .Values;
-            
             return tfMatrices;
         }
     }
