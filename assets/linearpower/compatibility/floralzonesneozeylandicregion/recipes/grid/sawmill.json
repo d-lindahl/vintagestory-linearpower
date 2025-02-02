@@ -1,0 +1,43 @@
+﻿[
+  {
+    "ingredientPattern": "WHC,PPP,PRP",
+    "ingredients": {
+      "H": {
+        "type": "item",
+        "code": "game:hammer-*",
+        "isTool": true,
+        "toolDurabilityCost": 20
+      },
+      "C": {
+        "type": "item",
+        "code": "game:chisel-*",
+        "isTool": true,
+        "toolDurabilityCost": 20
+      },
+      "W": {
+        "type": "item",
+        "code": "game:saw-*",
+        "isTool": true,
+        "toolDurabilityCost": 30
+      },
+      "R": {
+        "type": "item",
+        "code": "game:resin",
+        "quantity": 2
+      },
+      "P": {
+        "type": "item",
+        "code": "floralzonesneozeylandicregion:plank-*",
+        "name": "wood",
+        "quantity": 2
+      }
+    },
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "sawmill-{wood}-north",
+      "quantity": 1
+    }
+  }
+]

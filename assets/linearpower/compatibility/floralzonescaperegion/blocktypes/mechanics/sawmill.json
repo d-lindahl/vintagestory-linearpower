@@ -1,0 +1,19 @@
+﻿{
+  "inheritFrom": "linearpower:blocktypes/mechanics/sawmill.json",
+  "code": "sawmill",
+  "variantgroups": [
+    {
+      "code": "wood",
+      "loadFromProperties": "floralzonescaperegion:block/wood"
+    },
+    {
+      "code": "side",
+      "loadFromProperties": "abstract/horizontalorientation"
+    }
+  ],
+  "textures": {
+    "wood": {
+      "base": "floralzonescaperegion:block/wood/planks/{wood}*"
+    }
+  }
+}

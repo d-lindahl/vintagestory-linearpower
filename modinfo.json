@@ -5,7 +5,7 @@
   "authors": [
     "Quaan"
   ],
-  "description": "Adds a slider crank to convert angular force to linear force paired with a mechanically powered sawmill",
-  "version": "0.3.1",
+  "description": "Adds a slider-crank to convert angular force to linear force paired with a mechanically powered sawmill",
+  "version": "0.3.2",
   "dependencies": {}
 }

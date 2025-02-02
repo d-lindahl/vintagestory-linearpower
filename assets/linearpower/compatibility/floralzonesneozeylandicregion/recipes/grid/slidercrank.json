@@ -1,0 +1,55 @@
+﻿[
+  {
+    "ingredientPattern": "XHC,RSF,PAP",
+    "ingredients": {
+      "X": {
+        "type": "item",
+        "code": "game:saw-*",
+        "isTool": true,
+        "toolDurabilityCost": 10
+      },
+      "H": {
+        "type": "item",
+        "code": "game:hammer-*",
+        "isTool": true,
+        "toolDurabilityCost": 10
+      },
+      "C": {
+        "type": "item",
+        "code": "game:chisel-*",
+        "isTool": true,
+        "toolDurabilityCost": 10
+      },
+      "A": {
+        "type": "block",
+        "code": "game:woodenaxle-ud"
+      },
+      "R": {
+        "type": "item",
+        "code": "game:resin"
+      },
+      "P": {
+        "type": "item",
+        "code": "floralzonesneozeylandicregion:plank-*",
+        "name": "wood",
+        "quantity": 2
+      },
+      "S": {
+        "type": "item",
+        "code": "game:stick",
+        "quantity": 1
+      },
+      "F": {
+        "type": "item",
+        "code": "game:fat"
+      }
+    },
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "slidercrank-{wood}-north",
+      "quantity": 1
+    }
+  }
+]

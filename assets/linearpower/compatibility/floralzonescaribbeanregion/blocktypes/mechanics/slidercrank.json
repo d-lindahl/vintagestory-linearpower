@@ -1,0 +1,19 @@
+﻿{
+  "inheritFrom": "linearpower:blocktypes/mechanics/slidercrank.json",
+  "code": "slidercrank",
+  "variantgroups": [
+    {
+      "code": "wood",
+      "loadFromProperties": "floralzonescaribbeanregion:block/wood"
+    },
+    {
+      "code": "side",
+      "loadFromProperties": "abstract/horizontalorientation"
+    }
+  ],
+  "textures": {
+    "wood": {
+      "base": "floralzonescaribbeanregion:block/wood/planks/{wood}*"
+    }
+  }
+}

@@ -22,7 +22,7 @@
       },
       "A": {
         "type": "block",
-        "code": "game:woodenaxle-ud"
+        "code": "*:woodenaxle-*"
       },
       "R": {
         "type": "item",

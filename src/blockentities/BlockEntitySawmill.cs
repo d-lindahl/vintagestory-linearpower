@@ -10,6 +10,8 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
+using ImmersiveWoodSawing;
+using System.Reflection;
 
 namespace sawmill
 {
@@ -152,43 +154,63 @@ namespace sawmill
 
         private void Cut()
         {
-            GridRecipe applicableRecipe = GetApplicableRecipe(InputInventory);
-            if (applicableRecipe == null)
+            ItemStack outputStack = null;
+            if (UsesImmersiveWoodSawing() && InputInventory?.Itemstack?.Block != null && GetImmersiveWoodSawingSawableBehavior(InputInventory.Itemstack.Block) != null)
             {
-                Api.World.SpawnItemEntity(InputInventory.TakeOut(1), Pos.ToVec3d());
-                MarkDirty(redrawOnClient: true);
-                return;
-            }
-            
-            applicableRecipe.Output.Resolve(Api.World, "sawmill");
-            ItemStack outputStack = applicableRecipe.Output.ResolvedItemstack.Clone();
-            if (applicableRecipe.CopyAttributesFrom != null)
-            {
-                ItemStack inputStackForPatternCode = applicableRecipe.GetInputStackForPatternCode(applicableRecipe.CopyAttributesFrom, new ItemSlot[] { InputInventory });
-                if (inputStackForPatternCode != null)
-                {
-                    ITreeAttribute treeAttribute = inputStackForPatternCode.Attributes.Clone();
-                    treeAttribute.MergeTree(outputStack.Attributes);
-                    outputStack.Attributes = treeAttribute;
-                }
-            }
-            InputInventory.TakeOut(1);
+                // ImmersiveWoodSawing compatibility
+                BlockBehavior sawableBehavior = GetImmersiveWoodSawingSawableBehavior(InputInventory.Itemstack.Block);
+                Assembly immersiveWoodSawingAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName.StartsWith("ImmersiveWoodSawing"), null);
+                Type sawableBehaviorType = immersiveWoodSawingAssembly.GetType("ImmersiveWoodSawing.BlockBehaviorSawable");
+                AssetLocation plankType = (AssetLocation)sawableBehaviorType.GetField("drop").GetValue(sawableBehavior);
+                int plankCount = (int)sawableBehaviorType.GetField("dropAmount").GetValue(sawableBehavior);
 
-            if (LinearPowerConfig.Current.sawDegradeRate > 0)
+                outputStack = new ItemStack(Api.World.GetItem(plankType), plankCount);
+            }
+            else
             {
-                float durabilityCost = applicableRecipe.resolvedIngredients.First(ingredient => ingredient.Code.Path.StartsWith("saw-")).ToolDurabilityCost * LinearPowerConfig.Current.sawDegradeRate;
-                if (durabilityCost > 0)
+                GridRecipe applicableRecipe = GetApplicableRecipe(InputInventory);
+                if (applicableRecipe != null)
                 {
-                    accumulatedDurabilityCost += durabilityCost;
-                }
-                if (accumulatedDurabilityCost > 1)
-                {
-                    int damage = (int)Math.Floor(accumulatedDurabilityCost);
-                    accumulatedDurabilityCost -= damage;
-                    DamageSaw(damage);
+
+                    applicableRecipe.Output.Resolve(Api.World, "sawmill");
+                    outputStack = applicableRecipe.Output.ResolvedItemstack.Clone();
+                    if (applicableRecipe.CopyAttributesFrom != null)
+                    {
+                        ItemStack inputStackForPatternCode = applicableRecipe.GetInputStackForPatternCode(applicableRecipe.CopyAttributesFrom, new ItemSlot[] { InputInventory });
+                        if (inputStackForPatternCode != null)
+                        {
+                            ITreeAttribute treeAttribute = inputStackForPatternCode.Attributes.Clone();
+                            treeAttribute.MergeTree(outputStack.Attributes);
+                            outputStack.Attributes = treeAttribute;
+                        }
+                    }
+
+                    if (LinearPowerConfig.Current.sawDegradeRate > 0)
+                    {
+                        float durabilityCost = applicableRecipe.resolvedIngredients.First(ingredient => ingredient.Code.Path.StartsWith("saw-")).ToolDurabilityCost * LinearPowerConfig.Current.sawDegradeRate;
+                        if (durabilityCost > 0)
+                        {
+                            accumulatedDurabilityCost += durabilityCost;
+                        }
+                        if (accumulatedDurabilityCost > 1)
+                        {
+                            int damage = (int)Math.Floor(accumulatedDurabilityCost);
+                            accumulatedDurabilityCost -= damage;
+                            DamageSaw(damage);
+                        }
+                    }
                 }
             }
-            
+            if (outputStack == null)
+            {
+                // No recipe found, drop the input item. This should not happen.
+                outputStack = InputInventory.TakeOut(1);
+            }
+            else
+            {
+                // Recipe found, clear the input item
+                InputInventory.TakeOut(1);
+            }
             Api.World.SpawnItemEntity(outputStack, Pos.ToVec3d() + new Vec3d(0.5, 0.05, 0.5), new Vec3d(0, 0.05, 0));
             processingResistance = 0;
             MarkDirty(redrawOnClient: true);
@@ -257,9 +279,23 @@ namespace sawmill
             return true;
         }
 
+        private bool UsesImmersiveWoodSawing()
+        {
+            return Api.ModLoader.IsModEnabled("immersivewoodsawing");
+        }
+
+        private BlockBehavior GetImmersiveWoodSawingSawableBehavior(Block block)
+        {
+            return block.BlockBehaviors.FirstOrDefault(behavior => behavior.GetType().Name.Equals("BlockBehaviorSawable"), null);
+        }
+
         private bool IsValidForSawing(ItemStack stack)
         {
             string code = stack.Collectible.Code.ToString();
+            if (UsesImmersiveWoodSawing() && GetImmersiveWoodSawingSawableBehavior(stack.Block) != null)
+            {
+                return true;
+            }
             if (!validIngredientCodes.TryGetValue(code, out bool isValid))
             {
                 foreach (GridRecipe recipe in sawGridRecipes)
@@ -401,36 +437,6 @@ namespace sawmill
             progress = 0;
             MarkDirty(redrawOnClient: true);
         }
-
-        private void TryPut(IPlayer byPlayer, ItemSlot from, ItemStack to)
-        {
-            ItemStack taken;
-            if (byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative)
-            {
-                taken = from.TakeOut(1);
-                from.MarkDirty();
-
-            }
-            else
-            {
-                taken = from.Itemstack.Clone();
-                taken.StackSize = 1;
-
-            }
-            if (to != null && !byPlayer.InventoryManager.TryGiveItemstack(to, true))
-            {
-                Api.World.SpawnItemEntity(to, Pos.ToVec3d().Add(0.5, 0.5, 0.5));
-            }
-            SawItemStack = taken;
-            Vec3d vec3d = Pos.ToVec3d().Add(0.5, 0.25, 0.5);
-            this.Api.World.PlaySoundAt(Block.Sounds.Place, vec3d.X + 0.5, vec3d.Y + 0.5, vec3d.Z + 0.5, byPlayer);
-            if (Api is ICoreClientAPI api)
-                api.World.Player.TriggerFpAnimation(EnumHandInteract.HeldItemInteract);
-            UpdateItemResistance();
-            progress = 0;
-            MarkDirty(redrawOnClient: true);
-        }
-
 
         private void TryTake(ItemSlot fromSlot, IPlayer toPlayer)
         {

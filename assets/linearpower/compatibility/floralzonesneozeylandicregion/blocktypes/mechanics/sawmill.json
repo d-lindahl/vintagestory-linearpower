@@ -6,10 +6,10 @@
   "attributes": {
     "handbook": {
       "groupBy": [ "*" ]
-        },
-        "mechanicalPower": {
-            "renderer": "sawmill"
-        }
+    },
+    "mechanicalPower": {
+      "renderer": "sawmill"
+    }
   },
   "creativeinventory": {
     "general": [ "*-north" ],
@@ -19,8 +19,7 @@
   "variantgroups": [
     {
       "code": "wood",
-      "states": [ "aged", "generic" ],
-      "loadFromProperties": "block/wood"
+      "loadFromProperties": "floralzonesneozeylandicregion:block/wood"
     },
     {
       "code": "side",
@@ -39,7 +38,7 @@
   "blockmaterial": "Wood",
   "textures": {
     "wood": {
-      "base": "game:block/wood/planks/{wood}*"
+      "base": "floralzonesneozeylandicregion:block/wood/planks/{wood}*"
     }
   },
   "collisionBoxes": [
