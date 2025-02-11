@@ -50,6 +50,11 @@ namespace sawmill
             if (sawmillDev.blockEntitySawmill.HasSaw)
             {
                 string metal = sawmillDev.blockEntitySawmill.sawMetal;
+                if (metal == null)
+                {
+                    // defensive check
+                    return;
+                }
 
                 if (!quantitySaws.ContainsKey(metal))
                 {

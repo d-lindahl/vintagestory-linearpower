@@ -476,6 +476,7 @@ namespace sawmill
             tree.SetFloat("processingResistance", processingResistance);
             tree.SetItemstack("sawStack", SawItemStack);
             tree.SetFloat("accumulatedDurabilityCost", accumulatedDurabilityCost);
+            tree.SetString("sawMetal", sawMetal);
         }
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
         {
@@ -487,6 +488,7 @@ namespace sawmill
             {
                 sawStack.ResolveBlockOrItem(worldForResolving);
                 SawItemStack = sawStack;
+                sawMetal = tree.GetString("sawMetal");
             }
             accumulatedDurabilityCost = tree.GetFloat("accumulatedDurabilityCost");
         }
