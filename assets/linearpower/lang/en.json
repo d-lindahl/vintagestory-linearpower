@@ -36,6 +36,7 @@
   "linearpower:linearpowerguide-title": "Game mechanic: Linear mechanical power",
   "linearpower:linearpowerguide-text": "<strong>Linear mechanical power</strong><br><i>Power transmitted linearly? Madness!</i><br><br>Start by crafting a <strong><a href=\"handbook://block-linearpower:slidercrank-generic-north\">slider-crank</a></strong> and attach it to any existing mechanical power connector.<br>Craft a <strong><a href=\"handbook://block-linearpower:sawmill-generic-north\">sawmill</a></strong> and place it at one of the sides of the slider-crank.<br>Add a <strong><a href=\"handbook://item-saw-copper\">saw</a></strong> of any material to the sawmill.<br><br>You can now add any block or item that is the only ingredient of a crafting recipe together with a saw (used as tool) and it will be automatically processed according to the recipe.<br><br>You can replace the current saw by interacting with the sawmill while holding another saw in your hands.<br><br>You can remove the currently processing item by interacting with the sawmill with empty hands.",
 
+  "_linearpower_floralzonesneozeylandicregion_compat": "",
   "linearpower:block-sawmill-dacrydiumcupressinum-*": "Sawmill (Rimu)",
   "linearpower:block-sawmill-nothofagusmenziesii-*": "Sawmill (Tawhai)",
   "linearpower:block-sawmill-podocarpustotara-*": "Sawmill (Totara)",
@@ -45,25 +46,46 @@
   "linearpower:block-slidercrank-podocarpustotara-*": "Slider-crank (Totara)",
   "linearpower:block-slidercrank-araucariaheterophylla-*": "Slider-crank (Norfolk Island Pine)",
 
+  "_linearpower_floralzonescaperegion_compat": "",
   "linearpower:block-sawmill-afrocarpusfalcatus-*": "Sawmill (Common yellowwood)",
   "linearpower:block-sawmill-searsialancea-*": "Sawmill (Karee)",
   "linearpower:block-slidercrank-afrocarpusfalcatus-*": "Slider-crank (Common yellowwood)",
   "linearpower:block-slidercrank-searsialancea-*": "Slider-crank (Karee)",
 
+  "_linearpower_floralzonescaribbeanregion_compat": "",
   "linearpower:block-sawmill-lysilomalatisiliquum-*": "Sawmill (False Tamarind)",
   "linearpower:block-slidercrank-lysilomalatisiliquum-*": "Slider-crank (False Tamarind)",
 
+  "_linearpower_floralzonescentralaustralianregion_compat": "",
   "linearpower:block-sawmill-eucalyptuscamaldulensis-*": "Sawmill (Red river gum)",
   "linearpower:block-sawmill-corymbiaaparrerinja-*": "Sawmill (Ghost gum)",
   "linearpower:block-slidercrank-eucalyptuscamaldulensis-*": "Slider-crank (Red river gum)",
   "linearpower:block-slidercrank-corymbiaaparrerinja-*": "Slider-crank (Ghost gum)",
 
+  "_linearpower_floralzoneseastasiaticregion_compat": "Does not seem to be used",
   "linearpower:block-sawmill-ginkgobiloba-*": "Sawmill (Ginkgo)",
   "linearpower:block-slidercrank-ginkgobiloba-*": "Slider-crank (Ginkgo)",
 
+  "_linearpower_floralzonesmediterraneanregion_compat": "",
   "linearpower:block-sawmill-populusalba-*": "Sawmill (White Poplar)",
   "linearpower:block-sawmill-taxusbaccata-*": "Sawmill (European Yew)",
   "linearpower:block-slidercrank-populusalba-*": "Slider-crank (White Poplar)",
-  "linearpower:block-slidercrank-taxusbaccata-*": "Slider-crank (European Yew)"
+  "linearpower:block-slidercrank-taxusbaccata-*": "Slider-crank (European Yew)",
+
+  "_linearpower_florasphere_compat": "",
+  "linearpower:block-sawmill-fir-*": "Sawmill (Fir)",
+  "linearpower:block-sawmill-spruce-*": "Sawmill (Spruce)",
+  "linearpower:block-sawmill-aspen-*": "Sawmill (Aspen)",
+  "linearpower:block-sawmill-limba-*": "Sawmill (Limba)",
+  "linearpower:block-sawmill-shorea-*": "Sawmill (Shorea)",
+  "linearpower:block-sawmill-baobab-*": "Sawmill (Baobab)",
+  "linearpower:block-sawmill-beech-*": "Sawmill (Beech)",
+  "linearpower:block-slidercrank-fir-*": "Slider-crank (Fir)",
+  "linearpower:block-slidercrank-spruce-*": "Slider-crank (Spruce)",
+  "linearpower:block-slidercrank-aspen-*": "Slider-crank (Aspen)",
+  "linearpower:block-slidercrank-limba-*": "Slider-crank (Limba)",
+  "linearpower:block-slidercrank-shorea-*": "Slider-crank (Shorea)",
+  "linearpower:block-slidercrank-baobab-*": "Slider-crank (Baobab)",
+  "linearpower:block-slidercrank-beech-*": "Slider-crank (Beech)"
 
 }
