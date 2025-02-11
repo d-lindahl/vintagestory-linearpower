@@ -1,0 +1,137 @@
+﻿{
+  "code": "woodsplitter",
+  "class": "BlockWoodsplitter",
+  "entityClass": "BlockEntityWoodsplitter",
+  "entityBehaviors": [ { "name": "BEBehaviorMPWoodsplitter" } ],
+  "attributes": {
+    "handbook": {
+      "groupBy": [ "*" ]
+        },
+        "mechanicalPower": {
+            "renderer": "woodsplitter"
+        }
+  },
+  "creativeinventory": {
+    "general": [ "*-north" ],
+    "mechanics": [ "*-north" ]
+  },
+  "behaviors": [ { "name": "HorizontalOrientable" } ],
+  "variantgroups": [
+    {
+      "code": "wood",
+      "states": [ "aged", "generic" ],
+      "loadFromProperties": "block/wood"
+    },
+    {
+      "code": "side",
+      "loadFromProperties": "abstract/horizontalorientation"
+    }
+  ],
+  "shape": {
+    "base": "block/wood/mechanics/woodsplitter",
+    "rotateYByType": {
+      "*-north": 0,
+      "*-east": 90,
+      "*-south": 180,
+      "*-west": 270
+    }
+  },
+  "blockmaterial": "Wood",
+  "textures": {
+    "wood": {
+      "base": "game:block/wood/planks/{wood}*"
+    }
+  },
+  "collisionBoxes": [
+    {
+      "x1": 0.063,
+      "y1": 0,
+      "z1": 0.375,
+      "x2": 0.187,
+      "y2": 0.933,
+      "z2": 0.626
+    },
+    {
+      "x1": 0.94,
+      "y1": 0,
+      "z1": 0.375,
+      "x2": 0.815,
+      "y2": 0.933,
+      "z2": 0.626
+    },
+    {
+      "x1": 0.187,
+      "y1": 0.5,
+      "z1": 0.375,
+      "x2": 0.815,
+      "y2": 0.933,
+      "z2": 0.626
+    }
+  ],
+  "selectionbox": {
+    "x1": 0.35,
+    "y1": 0,
+    "z1": 0,
+    "x2": 0.65,
+    "y2": 1,
+    "z2": 1,
+    "rotateYByType": {
+      "*-north": 0,
+      "*-east": 90,
+      "*-south": 180,
+      "*-west": 270
+    }
+  },
+  "rainPermeable": true,
+  "lightAbsorption": 0,
+  "sidesolid": { "all": false },
+  "sideopaque": { "all": false },
+  "resistance": 4.5,
+  "sounds": {
+    "place": "game:block/planks",
+    "walk": "game:walk/wood",
+    "hit": "game:block/planks",
+    "break": "game:block/planks",
+    "byTool": {
+      "Axe": {
+        "hit": "game:block/chop",
+        "break": "game:block/planks"
+      }
+    }
+  },
+  "heldTpIdleAnimation": "holdbothhandslarge",
+  "heldTpRightReadyAnimation": "heldblockready",
+  "heldTpUseAnimation": "twohandplaceblock",
+  "guiTransform": {
+    "translation": {
+      "x": 0,
+      "y": -1,
+      "z": 0
+    },
+    "rotation": {
+      "x": -40,
+      "y": 45,
+      "z": 0
+    },
+    "scale": 1.3
+  },
+  "tpHandTransform": {
+    "translation": {
+      "x": -1.23,
+      "y": -0.91,
+      "z": -0.8
+    },
+    "rotation": {
+      "x": -2,
+      "y": 25,
+      "z": -78
+    },
+    "scale": 0.4
+  },
+  "drops": [
+    {
+      "type": "block",
+      "code": "woodsplitter-{wood}-north"
+    }
+  ]
+}

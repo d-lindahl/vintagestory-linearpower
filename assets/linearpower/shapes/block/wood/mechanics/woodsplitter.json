@@ -1,0 +1,75 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": true
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "Base",
+			"from": [ 5.0, 0.0, 1.0 ],
+			"to": [ 11.0, 8.0, 15.0 ],
+			"uv": [ 0.0, 0.0 ],
+			"rotationOrigin": [ 5.0, 0.0, 1.0 ],
+			"faces": {
+				"north": { "texture": "#wood", "uv": [ 0.0, 14.0, 6.0, 22.0 ] },
+				"east": { "texture": "#wood", "uv": [ 6.0, 14.0, 20.0, 22.0 ] },
+				"south": { "texture": "#wood", "uv": [ 20.0, 14.0, 26.0, 22.0 ] },
+				"west": { "texture": "#wood", "uv": [ 26.0, 14.0, 40.0, 22.0 ] },
+				"up": { "texture": "#wood", "uv": [ 0.0, 0.0, 6.0, 14.0 ] },
+				"down": { "texture": "#wood", "uv": [ 6.0, 0.0, 12.0, 14.0 ] }
+			},
+			"children": [
+				{
+					"name": "GuideW",
+					"from": [ 0.0, 8.0, 0.0 ],
+					"to": [ 1.0, 9.0, 13.0 ],
+					"uv": [ 0.0, 0.0 ],
+					"rotationOrigin": [ 0.0, 8.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#wood", "uv": [ 0.0, 13.0, 1.0, 14.0 ] },
+						"east": { "texture": "#wood", "uv": [ 1.0, 13.0, 14.0, 14.0 ] },
+						"south": { "texture": "#wood", "uv": [ 14.0, 13.0, 15.0, 14.0 ] },
+						"west": { "texture": "#wood", "uv": [ 15.0, 13.0, 28.0, 14.0 ] },
+						"up": { "texture": "#wood", "uv": [ 0.0, 0.0, 1.0, 13.0 ] },
+						"down": { "texture": "#wood", "uv": [ 1.0, 0.0, 2.0, 13.0 ] }
+					}
+				},
+				{
+					"name": "GuideE",
+					"from": [ 5.0, 8.0, 0.0 ],
+					"to": [ 6.0, 9.0, 13.0 ],
+					"uv": [ 0.0, 0.0 ],
+					"rotationOrigin": [ 5.0, 8.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#wood", "uv": [ 0.0, 14.0, 1.0, 15.0 ] },
+						"east": { "texture": "#wood", "uv": [ 1.0, 14.0, 15.0, 15.0 ] },
+						"south": { "texture": "#wood", "uv": [ 15.0, 14.0, 16.0, 15.0 ] },
+						"west": { "texture": "#wood", "uv": [ 16.0, 14.0, 30.0, 15.0 ] },
+						"up": { "texture": "#wood", "uv": [ 0.0, 0.0, 1.0, 14.0 ] },
+						"down": { "texture": "#wood", "uv": [ 1.0, 0.0, 2.0, 14.0 ] }
+					}
+				},
+				{
+					"name": "BackPlate",
+					"from": [ 0.0, 8.0, 13.0 ],
+					"to": [ 6.0, 12.0, 14.0 ],
+					"uv": [ 0.0, 0.0 ],
+					"rotationOrigin": [ 0.0, 8.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#wood", "uv": [ 0.0, 1.0, 6.0, 5.0 ] },
+						"east": { "texture": "#wood", "uv": [ 6.0, 1.0, 7.0, 5.0 ] },
+						"south": { "texture": "#wood", "uv": [ 7.0, 1.0, 13.0, 5.0 ] },
+						"west": { "texture": "#wood", "uv": [ 13.0, 1.0, 14.0, 5.0 ] },
+						"up": { "texture": "#wood", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+						"down": { "texture": "#wood", "uv": [ 6.0, 0.0, 12.0, 1.0 ] }
+					}
+				}
+			]
+		}
+	]}
