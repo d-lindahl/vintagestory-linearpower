@@ -10,7 +10,6 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using ImmersiveWoodSawing;
 using System.Reflection;
 
 namespace sawmill
@@ -155,7 +154,13 @@ namespace sawmill
         private void Cut()
         {
             ItemStack outputStack = null;
-            if (UsesImmersiveWoodSawing() && InputInventory?.Itemstack?.Block != null && GetImmersiveWoodSawingSawableBehavior(InputInventory.Itemstack.Block) != null)
+            Object inDappledGrovesRecipe;
+            if (UsesIndappledGroves() && (inDappledGrovesRecipe = GetInDappledGrovesRecipe(InputInventory)) != null)
+            {
+                // InDappledGroves compatibility
+                outputStack = (ItemStack)inDappledGrovesRecipe.GetType().GetMethod("TryCraftNow").Invoke(inDappledGrovesRecipe, new object[] { Api, InputInventory });
+            }
+            else if (UsesImmersiveWoodSawing() && InputInventory?.Itemstack?.Block != null && GetImmersiveWoodSawingSawableBehavior(InputInventory.Itemstack.Block) != null)
             {
                 // ImmersiveWoodSawing compatibility
                 BlockBehavior sawableBehavior = GetImmersiveWoodSawingSawableBehavior(InputInventory.Itemstack.Block);
@@ -265,7 +270,7 @@ namespace sawmill
                 }
                 if (HasSaw)
                 {
-                    if (IsValidForSawing(activeHotbarSlot.Itemstack))
+                    if (IsValidForSawing(activeHotbarSlot))
                         TryPut(byPlayer, activeHotbarSlot, itemSlot);
                     else
                         if (Api is ICoreClientAPI capi)
@@ -284,16 +289,39 @@ namespace sawmill
             return Api.ModLoader.IsModEnabled("immersivewoodsawing");
         }
 
-        private BlockBehavior GetImmersiveWoodSawingSawableBehavior(Block block)
+        private static BlockBehavior GetImmersiveWoodSawingSawableBehavior(Block block)
         {
             return block.BlockBehaviors.FirstOrDefault(behavior => behavior.GetType().Name.Equals("BlockBehaviorSawable"), null);
         }
 
-        private bool IsValidForSawing(ItemStack stack)
+        private bool UsesIndappledGroves()
         {
-            string code = stack.Collectible.Code.ToString();
+            return Api.ModLoader.IsModEnabled("indappledgroves");
+        }
+
+        private Object GetInDappledGrovesRecipe(ItemSlot slot)
+        {
+            Assembly inDappledGrovesAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName.StartsWith("InDappledGroves"), null);
+            Type RecipeHandlerType = inDappledGrovesAssembly.GetType("InDappledGroves.Util.Handlers.RecipeHandler");
+            Object handler = Activator.CreateInstance(RecipeHandlerType, Api, null);
+            Object recipe = null;
+            object[] args = new object[] { Api.World, slot, "sawing", "sawbuck", "basic", recipe };
+            handler.GetType().GetMethod("GetMatchingRecipes").Invoke(handler, args);
+            return args[5];
+        }
+
+        private bool IsValidForSawing(ItemSlot slot)
+        {
+            string code = slot.Itemstack.Collectible.Code.ToString();
+            ItemStack stack = slot.Itemstack;
+            if (UsesIndappledGroves() && GetInDappledGrovesRecipe(slot) != null)
+            {
+                // there's a recipe for the sawbuck in InDappledGroves for this input
+                return true;
+            }
             if (UsesImmersiveWoodSawing() && GetImmersiveWoodSawingSawableBehavior(stack.Block) != null)
             {
+                // the block has an ImmersiveWoodSawing sawable behavior
                 return true;
             }
             if (!validIngredientCodes.TryGetValue(code, out bool isValid))
